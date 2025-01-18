@@ -1,0 +1,19 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section SelfCSSs {
+    <link rel="stylesheet" href="//cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css" />
+}
+
+<h1>Index</h1>
+<table id="tbl1">
+    
+</table>
+
+@section SelfScripts {
+    <script src="//cdn.datatables.net/2.1.8/js/dataTables.min.js" asp-append-version="true"></script>
+    <script src="~/js/areas/manager/Lab1.js" asp-append-version="true"></script>
+}
