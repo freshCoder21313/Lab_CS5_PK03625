@@ -43,13 +43,17 @@ namespace Lab.DataAccess.DbInitializer
         public void InitNhanVien_Lab2()
         {
             var objs = new List<tblNhanVien>();
+            Random rd = new Random();
             for (int i = 0; i < 10; i++)
             {
                 tblNhanVien blankObject = new tblNhanVien
                 {
                     HoTen = RandomData_DB.Instance.rdName(),
                     SoDienThoai = RandomData_DB.Instance.RandomPhone(),
-                    NgaySinh = (RandomData_DB.Instance.RandomBirthDate())
+                    NgaySinh = (RandomData_DB.Instance.RandomBirthDate()),
+                    TenDangNhap = $"noname{i}",
+                    MatKhau = $"nopass{i}",
+                    VaiTro = new string[] { "User", "Admin"}[rd.NextDouble() > 0.5 ? 0 : 1]
                 };
                 objs.Add(blankObject);
             }

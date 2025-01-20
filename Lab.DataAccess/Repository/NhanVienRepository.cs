@@ -28,6 +28,9 @@ namespace Lab.DataAccess.Repository
             infoGoc.HoTen = objDTO.HoTen;
             infoGoc.NgaySinh = objDTO.NgaySinh;
             infoGoc.SoDienThoai = objDTO.SoDienThoai;
+            infoGoc.TenDangNhap = objDTO.TenDangNhap;
+            infoGoc.MatKhau = objDTO.MatKhau;
+            infoGoc.VaiTro = objDTO.VaiTro;
 
             _db.Update(infoGoc);
         }

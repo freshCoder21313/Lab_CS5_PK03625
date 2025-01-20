@@ -15,5 +15,11 @@ namespace Lab.Models.DTOs.NhanVien
         public string SoDienThoai { get; set; }
         [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường NgaySinh")]
         public DateTime NgaySinh { get; set; }
+        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường TenDangNhap")]
+        public string TenDangNhap { get; set; }
+        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường MatKhau")]
+        public string MatKhau { get; set; }
+        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường VaiTro")]
+        public string VaiTro { get; set; }
     }
 }

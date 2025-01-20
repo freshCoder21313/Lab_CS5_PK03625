@@ -3,9 +3,13 @@ using Lab.DataAccess.Data;
 using Lab.DataAccess.DbInitializer;
 using Lab.DataAccess.Repository;
 using Lab.DataAccess.Repository.IRepository;
+using Lab.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using System.Text;
 
 namespace Lab2_CS5_PK03625
 {
@@ -36,6 +40,27 @@ namespace Lab2_CS5_PK03625
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            #region //Cấu hình mã Secret
+            builder.Services.Configure<AppSetting>(builder.Configuration.GetSection("AppSettings"));
+            var secretKey = builder.Configuration["AppSettings:SecretKey"];
+            var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(option =>
+                {
+                    option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
+            #endregion
+
+            builder.Services.AddAuthentication();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -47,6 +72,7 @@ namespace Lab2_CS5_PK03625
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             SeedDatabaes();
