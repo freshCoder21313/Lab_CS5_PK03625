@@ -1,4 +1,4 @@
-namespace Lab2_CS5_PK03625
+namespace Lab_CS5_PK03625
 {
     public class WeatherForecast
     {

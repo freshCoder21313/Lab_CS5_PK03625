@@ -15,68 +15,43 @@ namespace Lab.API.Areas.Manager.Controllers
     [Area("Manager")]
     [Route("api/[area]/[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class SanPhamController : ControllerBase
     {
         private readonly AppSetting _appSetting;
         private readonly IUnitOfWork _unit;
-        public SanPhamController(IOptionsMonitor<AppSetting> optionsMonitor, IUnitOfWork unit)
+        private readonly IJWTRepository _jwt;
+        public SanPhamController(IOptionsMonitor<AppSetting> optionsMonitor, IUnitOfWork unit, IJWTRepository jwt)
         {
             _appSetting = optionsMonitor.CurrentValue;
             _unit = unit;
+            _jwt = jwt;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery]string token)
+        public async Task<IActionResult> GetAll()
         {
-            try
+            return Ok(new
             {
-                var principal = TakeDataToken(token);
-                return Ok(new
-                {
-                    success = true,
-                    data = await _unit.SanPhams.GetAllAsyncVM(),
-                    message = $"Bạn đang đăng nhập với tài khoản mang tên {principal.FindFirst(ClaimTypes.Name)?.Value ?? "Undefined"}"
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new
-                {
-                    success = false,
-                    message = "Lỗi không mong muốn xảy ra. Mã Token của bạn có thể đã hết hạn hoặc không hợp lệ.",
-                    error = ex.Message
-                });
-            }
+                success = true,
+                data = await _unit.SanPhams.GetAllAsyncVM()
+            });
         }
         /// <summary>
         /// Lấy dữ liệu danh sách sản phẩm được sắp xếp theo tên tăng dần
         /// </summary>
         /// <returns> Lấy dữ liệu danh sách sản phẩm được sắp xếp theo tên tăng dần </returns>
         [HttpGet]
-        public async Task<IActionResult> ManualSortByName([FromQuery] string token)
+        public async Task<IActionResult> ManualSortByName()
         {
-            try
-            {
-                var principal = TakeDataToken(token);
-                List<tblSanPham> sanPhams = _unit.SanPhams.GetAllAsync().Result.ToList();
+            List<tblSanPham> sanPhams = _unit.SanPhams.GetAllAsync().Result.ToList();
 
-                List<tblSanPham> alterSortByName = sanPhams.OrderBy(x => x.TenSanPham).ToList();
+            List<tblSanPham> alterSortByName = sanPhams.OrderBy(x => x.TenSanPham).ToList();
 
-                return Ok(new
-                {
-                    success = true,
-                    data = alterSortByName,
-                    message = $"Bạn đang đăng nhập với tài khoản mang tên {principal.FindFirst(ClaimTypes.Name)?.Value ?? "Undefined"}"
-                });
-            }
-            catch (Exception ex)
+            return Ok(new
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new
-                {
-                    success = false,
-                    message = "Lỗi không mong muốn xảy ra. Mã Token của bạn có thể đã hết hạn hoặc không hợp lệ.",
-                    error = ex.Message
-                });
-            }
+                success = true,
+                data = alterSortByName
+            });
         }
         /// <summary>
         /// Lọc theo khoảng giá và sắp xếp theo id giảm dần
@@ -85,53 +60,20 @@ namespace Lab.API.Areas.Manager.Controllers
         /// <param name="giaLonNhat">Hãy chọn giá lớn nhất.</param>
         /// <returns>Lọc theo khoảng giá và sắp xếp theo id giảm dần</returns>
         [HttpGet]
-        public async Task<IActionResult> HandFilterByPriceAndManualSortByPrice(double giaNhoNhat, double giaLonNhat, [FromQuery] string token)
+        public async Task<IActionResult> HandFilterByPriceAndManualSortByPrice(double giaNhoNhat, double giaLonNhat)
         {
-            try
-            {
-                var principal = TakeDataToken(token);
-                List<tblSanPham> sanPhams = _unit.SanPhams.GetAllAsync().Result.ToList();
+            List<tblSanPham> sanPhams = _unit.SanPhams.GetAllAsync().Result.ToList();
 
-                List<tblSanPham> alterActionSanPham = sanPhams.Where(sp => sp.DonGia > giaNhoNhat && sp.DonGia < giaLonNhat)
-                                                              .OrderByDescending(x => x.DonGia)
-                                                              .ToList();
+            List<tblSanPham> alterActionSanPham = sanPhams.Where(sp => sp.DonGia > giaNhoNhat && sp.DonGia < giaLonNhat)
+                                                          .OrderByDescending(x => x.DonGia)
+                                                          .ToList();
 
-                return Ok(new
-                {
-                    success = true,
-                    data = alterActionSanPham,
-                    message = $"Bạn đang đăng nhập với tài khoản mang tên {principal.FindFirst(ClaimTypes.Name)?.Value ?? "Undefined"}"
-                });
-            }
-            catch (Exception ex)
+            return Ok(new
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new
-                {
-                    success = false,
-                    message = "Lỗi không mong muốn xảy ra. Mã Token của bạn có thể đã hết hạn hoặc không hợp lệ.",
-                    error = ex.Message
-                });
-            }
+                success = true,
+                data = alterActionSanPham
+            });
         }
 
-        private ClaimsPrincipal TakeDataToken(string token)
-        {
-            var jwtTokenHandler = new JwtSecurityTokenHandler();
-            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey);
-
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ClockSkew = TimeSpan.FromMinutes(5)
-            };
-
-            SecurityToken validatedToken;
-            var principal = jwtTokenHandler.ValidateToken(token, tokenValidationParameters, out validatedToken);
-
-            return principal;
-        }
     }
 }

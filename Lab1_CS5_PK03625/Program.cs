@@ -11,7 +11,7 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
 
-namespace Lab2_CS5_PK03625
+namespace Lab_CS5_PK03625
 {
     public class Program
     {
@@ -31,12 +31,42 @@ namespace Lab2_CS5_PK03625
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" }); // Thêm đường dẫn tới file XML để hiển thị comment
+                #region Format thêm comment lên môi action
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"; 
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile); 
                 c.IncludeXmlComments(xmlPath);
+                #endregion
+
+                #region Thêm mid cho bảo m?t
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Vui lòng nhập mã Token: ",
+                    Name = "Xác thuc: ",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
+                #endregion
             });
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+
+            builder.Services.AddScoped<IJWTRepository, JWTRepository>();
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

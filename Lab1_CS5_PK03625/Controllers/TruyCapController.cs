@@ -16,17 +16,18 @@ namespace Lab.API.Controllers
     {
         private readonly AppSetting _appSetting;
         private readonly IUnitOfWork _unit;
-
-        public TruyCapController(IOptionsMonitor<AppSetting> optionsMonitor, IUnitOfWork unit)
+        private readonly IJWTRepository _jwt;
+        public TruyCapController(IOptionsMonitor<AppSetting> optionsMonitor, IUnitOfWork unit, IJWTRepository jwt)
         {
             _appSetting = optionsMonitor.CurrentValue;
             _unit = unit;
+            _jwt = jwt;
         }
 
         /// <summary>
         /// Đăng nhập tài khoản nhân viên
         /// </summary>
-        /// <param name="dangNhap">Thông tin đăng nhập. (Vui lòng chạy mã /api/Manager/NhanVien/Get để có thông tin tài khoản có thể truy cập.)</param>
+        /// <param name="dangNhap">Thông tin đăng nhập. (Vui lòng chạy mã /api/Manager/NhanVien/Get để có thông tin tài khoản có thể truy cập.) [username: noname0] - [password: nopass0]</param>
         /// <returns>Đăng nhập tài khoản nhân viên để lấy được mã Token truy cập</returns>
         [HttpPost]
         public async Task<IActionResult> DangNhap([FromBody]DangNhap dangNhap)
@@ -47,7 +48,7 @@ namespace Lab.API.Controllers
                 return Ok(new
                 {
                     success = true,
-                    message = GenerateToken(UserLogin)
+                    message = _jwt.GenerateToken(UserLogin)
                 });
             }
 
@@ -77,7 +78,7 @@ namespace Lab.API.Controllers
 
             try
             {
-                var principal = TakeDataToken(token);
+                var principal = _jwt.TakeDataToken(token);
                 return Ok(new
                 {
                     success = true,
@@ -95,46 +96,5 @@ namespace Lab.API.Controllers
             }
         }
         
-        private string GenerateToken(tblNhanVien nhanVien) // Hàm tạo mã Token từ tài khoản đăng nhập thành công
-        {
-            var jwtTokenHandler = new JwtSecurityTokenHandler();
-
-            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey);
-
-            var tokenDescription = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, nhanVien.TenDangNhap),
-                    new Claim(ClaimTypes.Role, nhanVien.VaiTro), 
-                    new Claim("RandomAccess", (new Random().NextDouble() > 0.5).ToString())
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(5), // Dùng 5 phút
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = jwtTokenHandler.CreateToken(tokenDescription);
-            return jwtTokenHandler.WriteToken(token);
-        }
-
-        private ClaimsPrincipal TakeDataToken(string token)
-        {
-            var jwtTokenHandler = new JwtSecurityTokenHandler();
-            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey);
-
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ClockSkew = TimeSpan.FromMinutes(5)
-            };
-
-            SecurityToken validatedToken;
-            var principal = jwtTokenHandler.ValidateToken(token, tokenValidationParameters, out validatedToken);
-
-            return principal;
-        }
     }
 }
