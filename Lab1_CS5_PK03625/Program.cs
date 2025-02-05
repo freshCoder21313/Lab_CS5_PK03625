@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 
 namespace Lab_CS5_PK03625
 {
@@ -89,7 +90,52 @@ namespace Lab_CS5_PK03625
                 });
             #endregion
 
-            builder.Services.AddAuthentication();
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(option =>
+                {
+                    option.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
+                        ClockSkew = TimeSpan.Zero
+                    };
+
+                    // Xử lý khi token hết hạn hoặc không hợp lệ
+                    option.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = context =>
+                        {
+                            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                            {
+                                context.Response.Headers.Add("Token-Expired", "true");
+                                context.Response.StatusCode = 401;
+                                context.Response.ContentType = "application/json";
+                                var result = JsonSerializer.Serialize(new
+                                {
+                                    status = 401,
+                                    message = "Mã token đã hết hạn"
+                                });
+                                return context.Response.WriteAsync(result);
+                            }
+                            return Task.CompletedTask;
+                        },
+
+                        OnChallenge = context =>
+                        {
+                            context.HandleResponse();
+                            context.Response.StatusCode = 401;
+                            context.Response.ContentType = "application/json";
+                            var result = JsonSerializer.Serialize(new
+                            {
+                                status = 401,
+                                message = "Bạn chưa đăng nhập"
+                            });
+                            return context.Response.WriteAsync(result);
+                        }
+                    };
+                });
 
             var app = builder.Build();
 
