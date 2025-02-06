@@ -11,5 +11,6 @@ namespace Lab.DataAccess.Repository.IRepository
     public interface INhanVienRepository : IRepository<tblNhanVien>
     {
         Task Update(int id, NhanVienDTO objDTO);
+        Task SetRefreshToken(int id, string refreshToken);
     }
 }

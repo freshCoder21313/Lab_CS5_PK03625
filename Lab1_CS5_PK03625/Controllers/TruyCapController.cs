@@ -1,22 +1,25 @@
 ﻿using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
+using Lab.Models.ViewModels;
+using Lab.Utility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+using System;
+using System.Linq;
 using System.Security.Claims;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace Lab.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class TruyCapController : ControllerBase
     {
         private readonly AppSetting _appSetting;
         private readonly IUnitOfWork _unit;
         private readonly IJWTRepository _jwt;
+
         public TruyCapController(IOptionsMonitor<AppSetting> optionsMonitor, IUnitOfWork unit, IJWTRepository jwt)
         {
             _appSetting = optionsMonitor.CurrentValue;
@@ -30,7 +33,7 @@ namespace Lab.API.Controllers
         /// <param name="dangNhap">Thông tin đăng nhập. (Vui lòng chạy mã /api/Manager/NhanVien/Get để có thông tin tài khoản có thể truy cập.) [username: noname0] - [password: nopass0]</param>
         /// <returns>Đăng nhập tài khoản nhân viên để lấy được mã Token truy cập</returns>
         [HttpPost]
-        public async Task<IActionResult> DangNhap([FromBody]DangNhap dangNhap)
+        public async Task<IActionResult> DangNhap([FromBody] DangNhap dangNhap)
         {
             if (dangNhap is null || string.IsNullOrWhiteSpace(dangNhap.UserName) || string.IsNullOrWhiteSpace(dangNhap.Password))
             {
@@ -45,10 +48,13 @@ namespace Lab.API.Controllers
 
             if (UserLogin != null)
             {
+                TokenVM tokenVM = _jwt.GenerateToken(UserLogin);
+                await _unit.NhanViens.SetRefreshToken(UserLogin.MaNhanVien, tokenVM.RefreshToken);
+
                 return Ok(new
                 {
                     success = true,
-                    message = _jwt.GenerateToken(UserLogin)
+                    message = tokenVM
                 });
             }
 
@@ -58,6 +64,7 @@ namespace Lab.API.Controllers
                 message = "Mã xác thực không hợp lệ, quyền truy cập bị cấm."
             });
         }
+
         /// <summary>
         /// Xem dữ liệu được lưu trong claims sau khi đăng nhập với tài khoản nhân viên
         /// </summary>
@@ -95,6 +102,57 @@ namespace Lab.API.Controllers
                 });
             }
         }
-        
+
+        /// <summary>
+        /// Làm mới access token bằng refresh token
+        /// </summary>
+        [HttpPost("RefreshToken")]
+        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+        {
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Vui lòng nhập mã refresh token."
+                });
+            }
+
+            try
+            {
+                var principal = _jwt.ValidateRefreshToken(refreshToken);
+                var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                // Kiểm tra xem refresh token có hợp lệ không và lấy thông tin người dùng
+                var user = await _unit.NhanViens.GetAsync(u => u.MaNhanVien.ToString() == userId);
+                if (user == null)
+                {
+                    return Unauthorized(new
+                    {
+                        success = false,
+                        message = "Refresh token không hợp lệ."
+                    });
+                }
+
+                // Tạo mới access token và refresh token
+                TokenVM newTokenVM = _jwt.GenerateToken(user);
+                await _unit.NhanViens.SetRefreshToken(user.MaNhanVien, newTokenVM.RefreshToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = newTokenVM
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    success = false,
+                    message = "Lỗi không mong muốn xảy ra khi làm mới token.",
+                    error = ex.Message
+                });
+            }
+        }
     }
 }

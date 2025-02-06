@@ -1,5 +1,4 @@
-﻿
-using Lab.DataAccess.Data;
+﻿using Lab.DataAccess.Data;
 using Lab.DataAccess.DbInitializer;
 using Lab.DataAccess.Repository;
 using Lab.DataAccess.Repository.IRepository;
@@ -21,7 +20,6 @@ namespace Lab_CS5_PK03625
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectString")));
@@ -31,14 +29,14 @@ namespace Lab_CS5_PK03625
             // Đăng ký Swagger
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" }); // Thêm đường dẫn tới file XML để hiển thị comment
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
                 #region Format thêm comment lên môi action
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"; 
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile); 
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
                 #endregion
 
-                #region Thêm mid cho bảo m?t
+                #region Thêm mid cho bảo mật
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
@@ -66,9 +64,7 @@ namespace Lab_CS5_PK03625
             });
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
-
             builder.Services.AddScoped<IJWTRepository, JWTRepository>();
-
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             #region //Cấu hình mã Secret
@@ -76,20 +72,7 @@ namespace Lab_CS5_PK03625
             var secretKey = builder.Configuration["AppSettings:SecretKey"];
             var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(option =>
-                {
-                    option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                    {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
-                        ClockSkew = TimeSpan.Zero
-                    };
-                });
-            #endregion
-
+            // Chỉ cần thêm xác thực một lần
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(option =>
                 {
@@ -136,6 +119,7 @@ namespace Lab_CS5_PK03625
                         }
                     };
                 });
+            #endregion
 
             var app = builder.Build();
 
