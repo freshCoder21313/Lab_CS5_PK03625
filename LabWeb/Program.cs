@@ -1,10 +1,17 @@
-namespace LabWeb
+﻿namespace LabWeb
 {
     public class Program
     {
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Đăng ký HttpClient
+            builder.Services.AddHttpClient("ApiClient", client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7094/api");
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();

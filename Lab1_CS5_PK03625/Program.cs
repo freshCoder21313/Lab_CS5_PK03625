@@ -11,13 +11,24 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
-namespace Lab_CS5_PK03625
+namespace Lab.API
 {
     public class Program
     {
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: "MyPolicy", options =>
+                {
+                    options.AllowAnyHeader();
+                    options.AllowAnyMethod();
+                    options.AllowAnyOrigin();
+                });
+            });
 
             // Add services to the container.
             builder.Services.AddControllers();
@@ -26,10 +37,12 @@ namespace Lab_CS5_PK03625
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            // Đăng ký Swagger
+            
+            #region Đăng ký Swagger
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+
                 #region Format thêm comment lên môi action
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -62,17 +75,18 @@ namespace Lab_CS5_PK03625
                 });
                 #endregion
             });
+            #endregion
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
             builder.Services.AddScoped<IJWTRepository, JWTRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            #region //Cấu hình mã Secret
+            #region //Cấu hình mã Secret và Authentication
             builder.Services.Configure<AppSetting>(builder.Configuration.GetSection("AppSettings"));
             var secretKey = builder.Configuration["AppSettings:SecretKey"];
             var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
 
-            // Chỉ cần thêm xác thực một lần
+
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(option =>
                 {
@@ -132,15 +146,18 @@ namespace Lab_CS5_PK03625
 
             app.UseHttpsRedirection();
 
+            app.UseCors("MyPolicy");
+
             app.UseAuthentication();
             app.UseAuthorization();
 
-            SeedDatabaes();
+            SeedDatabaes(); //Func tạo CSDL nếu chưa có
 
             app.MapControllers();
 
             app.Run();
 
+            #region Func tạo CSDL 
             void SeedDatabaes()
             {
                 using (var seedScope = app.Services.CreateScope())
@@ -156,6 +173,7 @@ namespace Lab_CS5_PK03625
                     }
                 }
             }
+            #endregion
         }
     }
 }

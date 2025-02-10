@@ -15,7 +15,7 @@ namespace Lab.API.Areas.Manager.Controllers
     [Area("Manager")]
     [Route("api/[area]/[controller]/[action]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class SanPhamController : ControllerBase
     {
         private readonly AppSetting _appSetting;

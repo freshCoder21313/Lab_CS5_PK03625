@@ -1,0 +1,37 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section SelfCSSs {
+    <link rel="stylesheet" href="//cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css" />
+}
+<h1>Danh sách sản phẩm</h1>
+
+<div class="container">
+    <div class="row justify-content-between align-items-center shadow p-4 rounded-1">
+        <div class="col-3">
+            <label for="minPrice">Giá nhỏ nhất: </label>
+            <input id="minPrice" type="number" min="0" placeholder="Nhập giá lọc nhỏ nhất..."
+                   oninput="document.getElementById('maxPrice').min = this.value;" class="form-control" />
+        </div>
+
+        <div class="col-3">
+            <label for="maxPrice">Giá lớn nhất: </label>
+            <input id="maxPrice" type="number" min="0" placeholder="Nhập giá lọc lớn nhất..."
+                   oninput="document.getElementById('minPrice').max = this.value;" class="form-control" />
+        </div>
+
+        <div class="col-3 text-end">
+            <button id="btnFilter" class="btn btn-info" >Lọc</button>
+        </div>
+    </div>
+</div>
+<table id="tbl1" class="table table-bordered shadow p-4 rounded-1"></table>
+
+
+@section SelfScripts {
+    <script src="//cdn.datatables.net/2.1.8/js/dataTables.min.js" asp-append-version="true"></script>
+    <script src="~/js/areas/manager/Lab2.js" asp-append-version="true"></script>
+}

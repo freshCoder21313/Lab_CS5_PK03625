@@ -39,7 +39,7 @@ namespace Lab.DataAccess.Repository
                     new Claim(ClaimTypes.Role, nhanVien.VaiTro),
                     new Claim("RandomAccess", (new Random().NextDouble() > 0.5).ToString())
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(5), // Dùng 5 phút
+                Expires = DateTime.UtcNow.AddMinutes(10), // Dùng 5 phút
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes), SecurityAlgorithms.HmacSha256Signature)
             };
 
