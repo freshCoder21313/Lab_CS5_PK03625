@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/LabWeb.styles.css" asp-append-version="true" />
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     @RenderSection("SelfCSSs", required: false)
 </head>
@@ -28,7 +30,7 @@
                             <a class="nav-link text-dark" asp-area="Customer" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark disabled" asp-area="Manager" asp-controller="Lab1" asp-action="Index">Lab1</a>
+                            <a class="nav-link text-dark" asp-area="Manager" asp-controller="Lab1" asp-action="Index">Lab1</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="Manager" asp-controller="Lab2" asp-action="Index">Lab2</a>
@@ -52,6 +54,10 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("SelfScripts", required: false)

@@ -44,12 +44,12 @@ namespace Lab.API.Controllers
                 });
             }
 
-            var UserLogin = await _unit.NhanViens.GetAsync(x => x.TenDangNhap == dangNhap.UserName && x.MatKhau == dangNhap.Password);
+            var userLogin = await _unit.NhanViens.GetAsync(x => x.TenDangNhap == dangNhap.UserName && x.MatKhau == dangNhap.Password);
 
-            if (UserLogin != null)
+            if (userLogin != null)
             {
-                TokenVM tokenVM = _jwt.GenerateToken(UserLogin);
-                await _unit.NhanViens.SetRefreshToken(UserLogin.MaNhanVien, tokenVM.RefreshToken);
+                TokenVM tokenVM = _jwt.GenerateToken(userLogin);
+                await _unit.NhanViens.SetRefreshToken(userLogin.MaNhanVien, tokenVM.RefreshToken);
 
                 return Ok(new
                 {

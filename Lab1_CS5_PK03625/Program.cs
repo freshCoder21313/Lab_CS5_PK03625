@@ -3,6 +3,7 @@ using Lab.DataAccess.DbInitializer;
 using Lab.DataAccess.Repository;
 using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -87,7 +88,12 @@ namespace Lab.API
             var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
 
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            builder.Services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                })
                 .AddJwtBearer(option =>
                 {
                     option.TokenValidationParameters = new TokenValidationParameters
@@ -132,7 +138,7 @@ namespace Lab.API
                             return context.Response.WriteAsync(result);
                         }
                     };
-                });
+                }).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
             #endregion
 
             var app = builder.Build();
