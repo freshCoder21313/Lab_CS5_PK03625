@@ -1,0 +1,63 @@
+﻿@model Lab.Models.DTOs.NhanVien.NhanVienDTO
+
+<div class="modal-header">
+    <h1 class="modal-title fs-5" id="upsertModal">Cập nhập thông tin</h1>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form id="formUpsertStaff" onsubmit="return actionUpsertStaff(event)">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="MaNhanVien" class="control-label"></label>
+            <input asp-for="MaNhanVien" class="form-control" readonly />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="HoTen" class="control-label"></label>
+            <input asp-for="HoTen" class="form-control" />
+            <span asp-validation-for="HoTen" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="SoDienThoai" class="control-label"></label>
+            <input asp-for="SoDienThoai" class="form-control" />
+            <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="NgaySinh" class="control-label"></label>
+            <input asp-for="NgaySinh" class="form-control" type="datetime" />
+            <span asp-validation-for="NgaySinh" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="TenDangNhap" class="control-label"></label>
+            <input asp-for="TenDangNhap" class="form-control" />
+            <span asp-validation-for="TenDangNhap" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="MatKhau" class="control-label"></label>
+            <input asp-for="MatKhau" class="form-control" />
+            <span asp-validation-for="MatKhau" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="VaiTro" class="control-label"></label>
+            <select asp-for="VaiTro" class="form-control">
+                <option value="Admin">Admin</option>
+                <option value="User">User</option>
+            </select>
+            <span asp-validation-for="VaiTro" class="text-danger"></span>
+        </div>
+
+        <div class="modal-footer py-3">
+            <div class="form-group">
+                <input type="submit" value="Cập nhật" class="btn btn-primary" />
+            </div>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+
+    </form>
+</div>

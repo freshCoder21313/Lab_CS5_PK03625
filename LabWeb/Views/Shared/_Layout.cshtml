@@ -62,5 +62,7 @@
 
     @await RenderSectionAsync("SelfScripts", required: false)
     @await RenderSectionAsync("Scripts", required: false)
+    <partial name="_Notification.cshtml" />
+    @* @await Html.RenderPartialAsync("_Notification") *@
 </body>
 </html>

@@ -19,23 +19,9 @@ namespace Lab.DataAccess.Repository
             _db = db;
         }
 
-        public async Task SetRefreshToken(int id, string refreshToken)
+        public async Task Update(NhanVienDTO objDTO)
         {
-            tblNhanVien? infoGoc = await _db.NhanViens.FirstOrDefaultAsync(x => x.MaNhanVien == id);
-            if (infoGoc == null)
-            {
-                return;
-            }
-            infoGoc.RefreshToken = refreshToken;
-
-            _db.Update(infoGoc);
-
-            await _db.SaveChangesAsync();
-        }
-
-        public async Task Update(int id, NhanVienDTO objDTO)
-        {
-            tblNhanVien? infoGoc = await _db.NhanViens.FirstOrDefaultAsync(x => x.MaNhanVien == id);
+            tblNhanVien? infoGoc = await _db.NhanViens.FirstOrDefaultAsync(x => x.MaNhanVien == objDTO.MaNhanVien);
             if (infoGoc == null)
             {
                 return;

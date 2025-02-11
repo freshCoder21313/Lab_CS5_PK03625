@@ -1,5 +1,6 @@
 ﻿using Lab.Models;
 using Lab.Models.ViewModels;
+using Lab.Utility;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -47,8 +48,8 @@ namespace LabWeb.Areas.Customer.Controllers
                     if (!string.IsNullOrEmpty(accessToken))
                     {
                         // Lưu token vào session
-                        HttpContext.Session.SetString("AccessToken", accessToken);
-                        HttpContext.Session.SetString("RefreshToken", refreshToken);
+                        HttpContext.Session.SetString(SD.AccessToken, accessToken);
+                        HttpContext.Session.SetString(SD.RefreshToken, refreshToken);
 
                         return RedirectToAction("Index", "Lab1", new {area = "Manager"});
                     }
@@ -62,8 +63,8 @@ namespace LabWeb.Areas.Customer.Controllers
 
         public IActionResult Logout()
         {
-            HttpContext.Session.Remove("AccessToken");
-            HttpContext.Session.Remove("RefreshToken");
+            HttpContext.Session.Remove(SD.AccessToken);
+            HttpContext.Session.Remove(SD.RefreshToken);
             return RedirectToAction("Login");
         }
     }

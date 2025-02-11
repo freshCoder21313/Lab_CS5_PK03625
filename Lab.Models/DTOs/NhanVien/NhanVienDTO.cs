@@ -9,6 +9,7 @@ namespace Lab.Models.DTOs.NhanVien
 {
     public class NhanVienDTO
     {
+        public int MaNhanVien { get; set; }
         [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường HoTen")]
         public string HoTen { get; set; }
         [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường SoDienThoai")]

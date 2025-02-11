@@ -1,0 +1,9 @@
+﻿@{
+    Layout = null;
+}
+@if (TempData[SD.NotifyLayout] != null)
+{
+    <script>
+        toastr.info(`${@TempData[SD.NotifyLayout]}`);
+    </script>
+}

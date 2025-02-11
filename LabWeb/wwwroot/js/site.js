@@ -15,7 +15,24 @@
     "hideMethod": "fadeOut"          // Phương thức ẩn
 };
 
-const defaultPath = "https://localhost:7094/api/";
+const defaultPathAPI = "https://localhost:7094/api/";
+
+function handleResponse(response) {
+    if (response.success) {
+        toastr.success(response.message, "Thông báo");
+    } else {
+        console.log(response)
+        toastr.info(response.message ?? "Lỗi không xác định. Vui lòng liên hệ nhà phát triển để được hỗ trợ.", "Thông báo");
+    }
+}
+
+function handleJsonData(data) {
+    if (typeof data === 'string') {
+        return JSON.parse(data);
+    }
+    return data;
+}
+
 const defaultLanguageDatatable = {
     "sSearch": "Tìm kiếm:",
     "lengthMenu": "Hiển thị _MENU_ mục",

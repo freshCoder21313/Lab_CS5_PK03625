@@ -11,7 +11,7 @@ function loadDatatable() {
 
     datatable = $('#tbl1').DataTable({
         ajax: {
-            url: defaultPath + "manager/sanpham/HandFilterByPriceAndManualSortByPrice",
+            url: defaultPathAPI + "manager/sanpham/HandFilterByPriceAndManualSortByPrice",
             data: { giaNhoNhat: minPrice, giaLonNhat: maxPrice }, // Use colon instead of equal sign
             dataSrc: 'data',
             error: (xhr) => {

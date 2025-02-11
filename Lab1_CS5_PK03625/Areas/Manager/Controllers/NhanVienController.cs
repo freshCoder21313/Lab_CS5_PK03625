@@ -88,18 +88,18 @@ namespace Lab_CS5_PK03625.Areas.Manager.Controllers
         /// <summary>
         /// Cập nhập dữ liệu 1 đối tượng
         /// </summary>
-        /// <param name="id">ID của người dùng.</param>
+        /// <param name="nhanVien">Dữ liệu người dùng cập nhập.</param>
         /// <returns>Cập nhập dữ liệu dữ liệu 1 đối tượng theo id</returns>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] NhanVienDTO nhanVien)
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] NhanVienDTO nhanVien)
         {
-            await _unit.NhanViens.Update(id, nhanVien);
+            await _unit.NhanViens.Update(nhanVien);
             await _unit.SaveAsync();
 
             return Ok(new
             {
                 success = true,
-                message = $"Đã thay đổi dữ liệu nhân viên mang mã: {id}"
+                message = $"Đã thay đổi dữ liệu nhân viên mang mã: {nhanVien.MaNhanVien}"
             });
         }
 
@@ -109,7 +109,7 @@ namespace Lab_CS5_PK03625.Areas.Manager.Controllers
         /// <param name="id">ID của người dùng.</param>
         /// <returns>Xóa dữ liệu dữ liệu 1 đối tượng theo id</returns>
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int? id)
         {
             tblNhanVien? infoGoc = await _unit.NhanViens.GetAsync(x => x.MaNhanVien == id);
             if (infoGoc == default)
@@ -123,8 +123,7 @@ namespace Lab_CS5_PK03625.Areas.Manager.Controllers
             return Ok(new
             {
                 success = true,
-                data = await _unit.SanPhams.GetAllAsyncVM(),
-                message = $"Đã xóa dữ liệu nhân viên mang mã:  {id}"
+                message = $"Đã xóa dữ liệu nhân viên mang mã: {id}"
             });
         }
 

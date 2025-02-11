@@ -49,7 +49,6 @@ namespace Lab.API.Controllers
             if (userLogin != null)
             {
                 TokenVM tokenVM = _jwt.GenerateToken(userLogin);
-                await _unit.NhanViens.SetRefreshToken(userLogin.MaNhanVien, tokenVM.RefreshToken);
 
                 return Ok(new
                 {
@@ -136,7 +135,6 @@ namespace Lab.API.Controllers
 
                 // Tạo mới access token và refresh token
                 TokenVM newTokenVM = _jwt.GenerateToken(user);
-                await _unit.NhanViens.SetRefreshToken(user.MaNhanVien, newTokenVM.RefreshToken);
 
                 return Ok(new
                 {

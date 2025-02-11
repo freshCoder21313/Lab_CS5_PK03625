@@ -22,6 +22,5 @@ namespace Lab.Models
         public string MatKhau { get; set; }
         [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường VaiTro")]
         public string VaiTro { get; set; }
-        public string RefreshToken { get; set; }
     }
 }

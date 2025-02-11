@@ -2,6 +2,9 @@
 {
     public class SD
     {
-        public const string RefreshSession = "RefreshSession";
+        public const string RefreshToken = "RefreshToken";
+        public const string AccessToken = "AccessToken";
+
+        public const string NotifyLayout = "NotifyLayout";
     }
 }
