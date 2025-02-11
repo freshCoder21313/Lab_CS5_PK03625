@@ -66,30 +66,5 @@ namespace LabWeb.Areas.Customer.Controllers
             HttpContext.Session.Remove("RefreshToken");
             return RedirectToAction("Login");
         }
-        private async Task<string> RefreshAccessToken()
-        {
-            var refreshToken = HttpContext.Session.GetString("RefreshToken");
-            if (string.IsNullOrEmpty(refreshToken))
-                return null;
-
-            var content = new StringContent(JsonConvert.SerializeObject(refreshToken), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync("api/TruyCap/RefreshToken", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                var newTokenResponse = JsonConvert.DeserializeObject<TokenVM>(jsonResponse);
-
-                if (newTokenResponse != null && newTokenResponse != null)
-                {
-                    HttpContext.Session.SetString("AccessToken", newTokenResponse.AccessToken);
-                    HttpContext.Session.SetString("RefreshToken", newTokenResponse.RefreshToken);
-                    return newTokenResponse.AccessToken;
-                }
-            }
-
-            return null;
-        }
-
     }
 }

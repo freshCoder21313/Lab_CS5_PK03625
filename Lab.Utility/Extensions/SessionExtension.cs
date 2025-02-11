@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
-namespace Lab.Utility.Extentions
+namespace Lab.Utility.Extensions
 {
-    public static class SessionExtention
+    public static class SessionExtension
     {
         public static T GetComplexData<T>(this ISession session, string key)
         {

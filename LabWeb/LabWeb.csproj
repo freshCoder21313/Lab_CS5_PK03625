@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Lab.Models\Lab.Models.csproj" />
+    <ProjectReference Include="..\Lab.Utility\Lab.Utility.csproj" />
   </ItemGroup>
 
 </Project>

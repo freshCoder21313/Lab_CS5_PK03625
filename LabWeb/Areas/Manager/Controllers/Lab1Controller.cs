@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
+using Lab.Utility.Extensions;
 
 namespace LabWeb.Areas.Manager.Controllers
 {
@@ -30,43 +31,14 @@ namespace LabWeb.Areas.Manager.Controllers
         {
             try
             {
-                List<tblNhanVien> tbls = new List<tblNhanVien>();
-
-                // Lấy token từ Session
                 var token = _httpContextAccessor.HttpContext?.Session.GetString("AccessToken");
-                if (!string.IsNullOrEmpty(token))
-                {
-                    // Set Authorization header with token
-                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                }
-                else
-                {
-                    return Unauthorized("Token không hợp lệ hoặc hết hạn.");
-                }
-
-                // API call to get all data
-                HttpResponseMessage response = await _httpClient.GetAsync(_httpClient.BaseAddress + "/get");
-                if (response.IsSuccessStatusCode)
-                {
-                    var jsonResponse = await response.Content.ReadAsStringAsync();
-                    var jsonObject = JObject.Parse(jsonResponse);
-
-                    tbls = JsonConvert.DeserializeObject<List<tblNhanVien>>(jsonObject["data"]?.ToString());
-                }
-
-                else
-                {
-                    var errorMessage = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Error: {response.StatusCode}, Message: {errorMessage}");
-                    return StatusCode((int)response.StatusCode, errorMessage);
-                }
-
+                var tbls = await _httpClient.GetFromApiAsync<List<tblNhanVien>>(_httpClient.BaseAddress + "/get", _httpContextAccessor);
                 return Json(new { data = tbls });
             }
-            catch (Exception ex)
+            catch (HttpRequestException ex)
             {
                 Console.WriteLine("Gặp lỗi: " + ex.Message);
-                return StatusCode(500, "Lỗi máy chủ");
+                return StatusCode(500, ex.Message);
             }
         }
 
@@ -74,40 +46,14 @@ namespace LabWeb.Areas.Manager.Controllers
         {
             try
             {
-                tblNhanVien nhanVien = null;
-
-                // Lấy token từ Session
                 var token = _httpContextAccessor.HttpContext?.Session.GetString("AccessToken");
-                if (!string.IsNullOrEmpty(token))
-                {
-                    // Set Authorization header with token
-                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                }
-                else
-                {
-                    return Unauthorized("Token không hợp lệ hoặc hết hạn.");
-                }
-
-                // API call to get data by ID
-                HttpResponseMessage response = await _httpClient.GetAsync($"/get/{id}");
-                if (response.IsSuccessStatusCode)
-                {
-                    string data = await response.Content.ReadAsStringAsync();
-                    nhanVien = JsonConvert.DeserializeObject<tblNhanVien>(data);
-                }
-                else
-                {
-                    var errorMessage = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Error: {response.StatusCode}, Message: {errorMessage}");
-                    return StatusCode((int)response.StatusCode, errorMessage);
-                }
-
+                var nhanVien = await _httpClient.GetFromApiAsync<tblNhanVien>($"/get/{id}", _httpContextAccessor);
                 return Json(new { data = nhanVien });
             }
-            catch (Exception ex)
+            catch (HttpRequestException ex)
             {
                 Console.WriteLine("Gặp lỗi: " + ex.Message);
-                return StatusCode(500, "Lỗi máy chủ");
+                return StatusCode(500, ex.Message);
             }
         }
     }

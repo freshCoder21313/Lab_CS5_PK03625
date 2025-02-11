@@ -8,6 +8,10 @@
     <ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.10" />
 	    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.1.2" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Lab.Models\Lab.Models.csproj" />
     </ItemGroup>
 
 </Project>

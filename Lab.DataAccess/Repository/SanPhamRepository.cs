@@ -40,13 +40,13 @@ namespace Lab.DataAccess.Repository
         }
         public async Task<IEnumerable<SanPhamVM>> GetAllAsyncVM()
         {
-            var sanPhamVMs = _db.SanPhams.Select(x => new SanPhamVM
+            var sanPhamVMs = await _db.SanPhams.Select(x => new SanPhamVM
             {
                 MaSanPham = x.MaSanPham,
                 TenSanPham = x.TenSanPham,
                 DonGia = String.Format(x.DonGia.ToString(), "0:0n"),
                 SoLuong = x.SoLuong
-            });
+            }).ToListAsync();
 
             return sanPhamVMs;
         }
