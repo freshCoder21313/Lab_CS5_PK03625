@@ -1,26 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
+using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lab.Models.DTOs.NhanVien
 {
     public class NhanVienDTO
     {
+        [DisplayName("Mã nhân viên")]
+        [Required(ErrorMessage = ValidationConstants.InvalidPositiveIntegerMessage)]
+        [RegularExpression(ValidationConstants.ValidatePositiveInteger, ErrorMessage = ValidationConstants.InvalidPositiveIntegerMessage)]
         public int MaNhanVien { get; set; }
-        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường HoTen")]
+
+        [DisplayName("Họ tên nhân viên")]
+        [RegularExpression(ValidationConstants.ValidateStringName, ErrorMessage = ValidationConstants.InvalidStringNameMessage)]
+        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường Họ tên.")]
         public string HoTen { get; set; }
-        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường SoDienThoai")]
+
+        [DisplayName("Số điện thoại nhân viên")]
+        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường Số điện thoại.")]
+        [RegularExpression(ValidationConstants.ValidatePhoneNumber, ErrorMessage = ValidationConstants.InvalidPhoneNumberMessage)]
         public string SoDienThoai { get; set; }
-        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường NgaySinh")]
+
+        [DisplayName("Ngày sinh nhân viên")]
+        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường Ngày sinh.")]
+        [CustomValidation(typeof(ValidationConstants), nameof(ValidationConstants.ValidateBirthDate))]
         public DateTime NgaySinh { get; set; }
-        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường TenDangNhap")]
+
+        [DisplayName("Tên đăng nhập nhân viên")]
+        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường Tên đăng nhập.")]
+        [RegularExpression(ValidationConstants.ValidateUsername, ErrorMessage = ValidationConstants.InvalidUsernameMessage)]
         public string TenDangNhap { get; set; }
-        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường MatKhau")]
+
+        [DisplayName("Mật khẩu nhân viên")]
+        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường Mật khẩu.")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "Mật khẩu phải có ít nhất 8 ký tự.")]
+        [RegularExpression(ValidationConstants.ValidateStrongPassword, ErrorMessage = ValidationConstants.InvalidStrongPasswordMessage)]
         public string MatKhau { get; set; }
-        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường VaiTro")]
+
+        [DisplayName("Vai trò nhân viên")]
+        [Required(ErrorMessage = "Vui lòng nhập đủ thông tin trường Vai trò.")]
         public string VaiTro { get; set; }
     }
 }

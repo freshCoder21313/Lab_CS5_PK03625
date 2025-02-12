@@ -1,27 +1,93 @@
 ﻿$(document).ready(function () {
     loadDatatable();
+
+    //#region Event handlers for showing detail
+    $('#tbl1 tbody').on('click', 'td.details-control', function () {
+        var tr = $(this).closest('tr');
+        var row = datatable.row(tr);  // Use 'datatable' instead of 'table'
+
+        if (row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass('shown');
+        } else {
+            row.child(format(row.data())).show();
+            tr.addClass('shown');
+        }
+    });
+
+    function format(rowData) {
+        // Tạo một div để hiển thị chi tiết
+        var div = $('<div/>').addClass('loading').text('Loading...');
+
+        // Gửi yêu cầu AJAX để lấy thông tin chi tiết
+        $.ajax({
+            url: '/Manager/Lab1/Get',
+            data: { id: rowData.maNhanVien },
+            dataType: 'json',
+            success: function (json) {
+                // Kiểm tra nếu có dữ liệu trong response
+                if (json && json.data) {
+                    div.removeClass('loading'); // Xóa lớp loading
+
+                    // Tạo HTML cho các cột hiển thị
+                    var detailsHtml = `
+                <div class="container">
+                    <div class="row">
+                        <p>
+                            Thông tin chi tiết của nhân viên: <strong>${json.data.hoTen} [ID: ${json.data.maNhanVien}] </strong>
+                        <p>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <p class="form-control d-flex justify-content-between"><strong>Số điện thoại:</strong> ${json.data.soDienThoai}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="form-control d-flex justify-content-between"><strong>Ngày sinh:</strong> ${new Date(json.data.ngaySinh).toLocaleDateString('vi-VN')}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="form-control d-flex justify-content-between"><strong>Tên đăng nhập:</strong> ${json.data.tenDangNhap}</p>
+                        </div>
+                    </div>
+                </div>`;
+
+                    // Thêm HTML chi tiết vào div
+                    div.html(detailsHtml);
+                } else {
+                    // Nếu không có dữ liệu
+                    div.html('<p>Không có thông tin chi tiết để hiển thị.</p>');
+                }
+            },
+            error: (xhr) => {
+                toastr.error('Hiện tại không thể xử lí yêu cầu của bạn.');
+            }
+        });
+
+        return div;
+    }
+
+
+    //#endregion
 });
 
 let datatable;
+
 function loadDatatable() {
     datatable = $('#tbl1').DataTable({
         ajax: {
             url: "/manager/Lab1/GetAll",
             dataSrc: 'data',
             error: (xhr) => {
-                //if (xhr.status === 401) {
-                //    // Hiển thị thông báo cho người dùng
-                //    toastr.info("Thông báo", xhr.message);
-
-                    // Hoặc chuyển hướng đến trang đăng nhập
-                    window.location.href = "/Customer/Account/Login"; // Thay đổi đường dẫn đến trang đăng nhập của bạn
-                //} else {
-                //    // Xử lý các lỗi khác nếu cần
-                //    console.error("Có lỗi xảy ra: ", xhr);
-                //}
+                // Redirect to login page if the request fails
+                window.location.href = "/Customer/Account/Login";
             }
         },
         columns: [
+            {
+                className: 'details-control',
+                orderable: false,
+                data: null,
+                defaultContent: '<button class="btn btn-info">+</button>'
+            },
             {
                 data: 'maNhanVien',
                 width: "15%",
@@ -50,14 +116,18 @@ function loadDatatable() {
                 width: "20%",
                 title: "Hành động",
                 render: function (data) {
-                    return `<button onclick="deleteStaffRecord(${data})" class="btn btn-danger">🗑️</button>
-                            <button onclick="loadViewUpsertStaff(${data})" data-bs-toggle="modal" data-bs-target="#upsertModal" class=btn btn-warning">📝</button>`
+                    return `
+                        <button onclick="deleteStaffRecord(${data})" class="btn btn-danger">🗑️</button>
+                        <button onclick="loadViewUpsertStaff(${data})" data-bs-toggle="modal" data-bs-target="#upsertModal" class="btn btn-warning">📝</button>`;
                 }
             }
         ],
+        order: [[1, 'asc']],
         language: defaultLanguageDatatable
     });
-};
+}
+
+
 
 function deleteStaffRecord(staffId) {
     $.ajax({
@@ -105,6 +175,13 @@ function actionUpsertStaff(event) {
         contentType: false, // Để content-type mặc định của FormData
         success: (response) => {
             const data = handleJsonData(response.jsonResponse);
+
+            if (data == undefined) {
+                const htmlWithValidate = response.htmlWithValidate;
+
+                $('#upsertModal .modal-content').html(htmlWithValidate); // Cập nhật lại form nếu có lỗi
+            }
+
             if (data.success) {
                 toastr.success(data.message); // Hiển thị thông báo thành công
                 if (dataTable) {
@@ -113,7 +190,6 @@ function actionUpsertStaff(event) {
                 }
                 loadViewUpsertStaff();
             } else {
-                $('#upsertModal .modal-content').html(data.data); // Cập nhật lại form nếu có lỗi
                 toastr.error(data.message); // Hiển thị thông báo lỗi
             }
         },

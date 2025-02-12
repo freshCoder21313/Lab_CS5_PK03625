@@ -82,6 +82,14 @@ namespace LabWeb.Areas.Manager.Controllers
             try
             {
                 string? jsonResponse = null;
+
+                if (!ModelState.IsValid)
+                {
+                    string htmlWithValidate = await this.RenderViewAsync("Upsert", nhanVienDTO, true);
+
+                    return Json(new { htmlWithValidate });
+                }
+
                 if (nhanVienDTO.MaNhanVien == 0) //Tạo
                 {
                     jsonResponse = await _httpClient.PostToApiAsync<NhanVienDTO>(_httpClient.BaseAddress + $"/post", nhanVienDTO, _httpContextAccessor);

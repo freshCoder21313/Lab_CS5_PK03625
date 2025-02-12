@@ -1,6 +1,6 @@
 ﻿namespace Lab.Utility
 {
-    public class SD
+    public static class SD
     {
         public const string RefreshToken = "RefreshToken";
         public const string AccessToken = "AccessToken";
