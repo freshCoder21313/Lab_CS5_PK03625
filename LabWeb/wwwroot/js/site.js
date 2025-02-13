@@ -25,6 +25,32 @@ function handleResponse(response) {
         toastr.info(response.message ?? "Lỗi không xác định. Vui lòng liên hệ nhà phát triển để được hỗ trợ.", "Thông báo");
     }
 }
+class ResponseAPI {
+    constructor(status, success, message, htmlWithValidate, data) {
+        this.status = status;
+        this.success = success;
+        this.message = message;
+        this.htmlWithValidate = htmlWithValidate;
+        this.data = data;
+    }
+}
+
+function convertFromJson(jsonResponse) {
+    try {
+        const responseObject = JSON.parse(jsonResponse);
+        return new ResponseAPI(
+            responseObject.status,
+            responseObject.success,
+            responseObject.message,
+            responseObject.htmlWithValidate,
+            responseObject.data
+        );
+    } catch (error) {
+        console.error("Error converting JSON to ResponseAPI object: ", error);
+        return null;
+    }
+}
+
 
 function handleJsonData(data) {
     if (typeof data === 'string') {

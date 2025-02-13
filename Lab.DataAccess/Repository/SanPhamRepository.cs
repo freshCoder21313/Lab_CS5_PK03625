@@ -44,7 +44,7 @@ namespace Lab.DataAccess.Repository
             {
                 MaSanPham = x.MaSanPham,
                 TenSanPham = x.TenSanPham,
-                DonGia = String.Format(x.DonGia.ToString(), "0:0n"),
+                DonGia = x.DonGia,
                 SoLuong = x.SoLuong
             }).ToListAsync();
 

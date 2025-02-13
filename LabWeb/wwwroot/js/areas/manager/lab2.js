@@ -11,16 +11,12 @@ function loadDatatable() {
 
     datatable = $('#tbl1').DataTable({
         ajax: {
-            url: defaultPathAPI + "manager/sanpham/HandFilterByPriceAndManualSortByPrice",
+            url: "/manager/lab2/HandFilterByPriceAndManualSortByPrice",
             data: { giaNhoNhat: minPrice, giaLonNhat: maxPrice }, // Use colon instead of equal sign
-            dataSrc: 'data',
+            dataSrc: '',
             error: (xhr) => {
-                if (xhr.status === 401) {
-                    toastr.info("Thông báo", xhr.message);
-                    window.location.href = "/"; // Change redirect to your login page
-                } else {
-                    console.error("Có lỗi xảy ra: ", xhr);
-                }
+                // Redirect to login page if the request fails
+                window.location.href = "/Customer/Account/Login";
             }
         },
         columns: [

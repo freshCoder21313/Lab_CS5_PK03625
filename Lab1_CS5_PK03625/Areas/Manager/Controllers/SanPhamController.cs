@@ -1,5 +1,6 @@
 ﻿using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
+using Lab.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,7 @@ namespace Lab.API.Areas.Manager.Controllers
     [Area("Manager")]
     [Route("api/[area]/[controller]/[action]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class SanPhamController : ControllerBase
     {
         private readonly AppSetting _appSetting;
@@ -43,9 +44,9 @@ namespace Lab.API.Areas.Manager.Controllers
         [HttpGet]
         public async Task<IActionResult> ManualSortByName()
         {
-            List<tblSanPham> sanPhams = _unit.SanPhams.GetAllAsync().Result.ToList();
+            List<SanPhamVM> sanPhams = (await _unit.SanPhams.GetAllAsyncVM()).ToList();
 
-            List<tblSanPham> alterSortByName = sanPhams.OrderBy(x => x.TenSanPham).ToList();
+            List<SanPhamVM> alterSortByName = sanPhams.OrderBy(x => x.TenSanPham).ToList();
 
             return Ok(new
             {
@@ -62,9 +63,9 @@ namespace Lab.API.Areas.Manager.Controllers
         [HttpGet]
         public async Task<IActionResult> HandFilterByPriceAndManualSortByPrice(double giaNhoNhat, double giaLonNhat)
         {
-            List<tblSanPham> sanPhams = _unit.SanPhams.GetAllAsync().Result.ToList();
+            List<SanPhamVM> sanPhams = (await _unit.SanPhams.GetAllAsyncVM()).ToList();
 
-            List<tblSanPham> alterActionSanPham = sanPhams.Where(sp => sp.DonGia > giaNhoNhat && sp.DonGia < giaLonNhat)
+            List<SanPhamVM> alterActionSanPham = sanPhams.Where(sp => sp.DonGia > giaNhoNhat && sp.DonGia < giaLonNhat)
                                                           .OrderByDescending(x => x.DonGia)
                                                           .ToList();
 

@@ -8,6 +8,7 @@ namespace Lab.Models.DTOs.SanPham
 {
     public class SanPhamDTO
     {
+        public int MaSanPham { get; set; }
         public string TenSanPham { get; set; }
         public int SoLuong { get; set; }
         public double DonGia { get; set; }

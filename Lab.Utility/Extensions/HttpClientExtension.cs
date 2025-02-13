@@ -125,7 +125,7 @@ namespace Lab.Utility.Extensions
         private static async Task<string?> HandleResponse(HttpResponseMessage response)
         {
             string jsonResponse = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"Response Content: {jsonResponse}"); // Log nội dung phản hồi
+            //Console.WriteLine($"Response Content: {jsonResponse}"); // Log nội dung phản hồi
 
             if (response.IsSuccessStatusCode)
             {
@@ -138,7 +138,7 @@ namespace Lab.Utility.Extensions
         private static async Task<T?> HandleResponse<T>(HttpResponseMessage response)
         {
             string jsonResponse = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"Response Content: {jsonResponse}"); // Log nội dung phản hồi
+            //Console.WriteLine($"Response Content: {jsonResponse}"); // Log nội dung phản hồi
 
             if (response.IsSuccessStatusCode)
             {
