@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - LabWeb</title>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/LabWeb.styles.css" asp-append-version="true" />
@@ -36,6 +37,8 @@
                             <a class="nav-link text-dark" asp-area="Manager" asp-controller="Lab2" asp-action="Index">Lab2</a>
                         </li>
                     </ul>
+
+                    @await Component.InvokeAsync("AccessBar")
                 </div>
             </div>
         </nav>
@@ -63,6 +66,6 @@
     @await RenderSectionAsync("SelfScripts", required: false)
     @await RenderSectionAsync("Scripts", required: false)
     <partial name="_Notification.cshtml" />
-    @* @await Html.RenderPartialAsync("_Notification") *@
+
 </body>
 </html>

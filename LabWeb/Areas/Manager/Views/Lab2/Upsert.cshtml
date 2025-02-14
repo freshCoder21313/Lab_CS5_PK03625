@@ -1,0 +1,43 @@
+﻿@model ResponseAPI<Lab.Models.DTOs.SanPham.SanPhamDTO>
+
+<div class="modal-header">
+    <h1 class="modal-title fs-5" id="upsertModal">Cập nhật thông tin sản phẩm</h1>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form id="formUpsertProduct" enctype="multipart/form-data" onsubmit="return actionUpsertProduct(event)">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @Html.ValidationSummary(true)
+
+        <div class="form-group">
+            <label asp-for="Data.MaSanPham" class="control-label"></label>
+            <input asp-for="Data.MaSanPham" class="form-control" readonly name="Data.MaSanPham" />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Data.TenSanPham" class="control-label"></label>
+            <input asp-for="Data.TenSanPham" class="form-control" required maxlength="100" name="Data.TenSanPham" />
+            <span asp-validation-for="Data.TenSanPham" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Data.SoLuong" class="control-label"></label>
+            <input asp-for="Data.SoLuong" class="form-control" required type="number" name="Data.SoLuong" />
+            <span asp-validation-for="Data.SoLuong" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Data.DonGia" class="control-label"></label>
+            <input asp-for="Data.DonGia" class="form-control" required type="number" step="0.01" name="Data.DonGia" />
+            <span asp-validation-for="Data.DonGia" class="text-danger"></span>
+        </div>
+
+        <div class="modal-footer py-3">
+            <div class="form-group">
+                <input type="submit" value="Cập nhật" class="btn btn-primary" />
+            </div>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+    </form>
+</div>
+

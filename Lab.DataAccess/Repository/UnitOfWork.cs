@@ -20,9 +20,9 @@ namespace Lab.DataAccess.Repository
             this.SanPhams = new SanPhamRepository(_db);
         }
 
-        public async Task SaveAsync()
-        {
-            await _db.SaveChangesAsync();
-        }
+        //public async Task SaveAsync()
+        //{
+        //    await _db.SaveChangesAsync();
+        //}
     }
 }

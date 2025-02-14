@@ -1,0 +1,13 @@
+﻿@model bool
+
+@if(Model)
+{
+    <span>
+        <a asp-area="Customer" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+    </span>
+} else
+{
+    <span>
+        <a asp-area="Customer" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+    </span>
+}

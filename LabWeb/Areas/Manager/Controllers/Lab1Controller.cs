@@ -1,11 +1,10 @@
 ﻿using Lab.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Net.Http.Headers;
-using Lab.Utility.Extensions;
 using Lab.Models.DTOs.NhanVien;
+using Lab.Utility.Extensions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Net.Http.Headers;
 
 namespace LabWeb.Areas.Manager.Controllers
 {
@@ -27,13 +26,14 @@ namespace LabWeb.Areas.Manager.Controllers
         {
             return View();
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             try
             {
-                var tbls = await _httpClient.GetFromApiAsync<List<NhanVienDTO>>(_httpClient.BaseAddress + "/get", _httpContextAccessor);
-                return Json(new { data = tbls });
+                var responseAPI = await _httpClient.GetFromApiAsync<ResponseAPI<List<NhanVienDTO>>>(_httpClient.BaseAddress + "/get", _httpContextAccessor);
+                return Json(responseAPI);
             }
             catch (HttpRequestException ex)
             {
@@ -41,13 +41,14 @@ namespace LabWeb.Areas.Manager.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
         [HttpGet]
         public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var nhanVien = await _httpClient.GetFromApiAsync<NhanVienDTO>(_httpClient.BaseAddress + $"/get/{id}", _httpContextAccessor);
-                return Json(new { data = nhanVien });
+                var responseAPI = await _httpClient.GetFromApiAsync<ResponseAPI<NhanVienDTO>>(_httpClient.BaseAddress + $"/get/{id}", _httpContextAccessor);
+                return Json(responseAPI);
             }
             catch (HttpRequestException ex)
             {
@@ -55,20 +56,23 @@ namespace LabWeb.Areas.Manager.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
         [HttpGet]
         public async Task<IActionResult> Upsert(int? id)
         {
             try
             {
-                var nhanVien = new NhanVienDTO();
                 if (id == null)
                 {
-                    return PartialView(nhanVien);
+                    return PartialView(new ResponseAPI<NhanVienDTO>());
                 }
 
-                nhanVien = await _httpClient.GetFromApiAsync<NhanVienDTO>(_httpClient.BaseAddress + $"/get/{id}", _httpContextAccessor);
-                return PartialView(nhanVien);
-
+                var responseApi = await _httpClient.GetFromApiAsync<ResponseAPI<NhanVienDTO>>(_httpClient.BaseAddress + $"/get/{id}", _httpContextAccessor);
+                if (responseApi?.Data == null)
+                {
+                    return StatusCode(500, "Không tìm thấy dữ liệu nhân viên.");
+                }
+                return PartialView(responseApi);
             }
             catch (HttpRequestException ex)
             {
@@ -77,45 +81,88 @@ namespace LabWeb.Areas.Manager.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> Upsert(NhanVienDTO nhanVienDTO)
+        public async Task<IActionResult> Upsert(ResponseAPI<NhanVienDTO> response)
         {
+            NhanVienDTO? nhanVienDTO = response.Data;
+            var responseAPI = new ResponseAPI<NhanVienDTO>();
+
             try
             {
-                string? jsonResponse = null;
-
+                // Kiểm tra tính hợp lệ của ModelState trước khi tiếp tục
                 if (!ModelState.IsValid)
                 {
-                    string htmlWithValidate = await this.RenderViewAsync("Upsert", nhanVienDTO, true);
+                    // Truyền lại dữ liệu vào response để giữ giá trị đã nhập
+                    responseAPI.Data = nhanVienDTO;
 
-                    return Json(new { htmlWithValidate });
+                    // Render lại view với lỗi validate
+                    responseAPI.HtmlWithValidate = await this.RenderViewAsync("Upsert", responseAPI, true);
+
+                    // Thông báo lỗi
+                    responseAPI.Message = "Vui lòng nhập đúng yêu cầu dữ liệu.";
+                    responseAPI.Success = false;
+
+                    // Trả về response với lỗi validate
+                    return Json(responseAPI);
                 }
 
-                if (nhanVienDTO.MaNhanVien == 0) //Tạo
+                // Kiểm tra trường hợp tạo mới
+                if (nhanVienDTO?.MaNhanVien == 0)
                 {
-                    jsonResponse = await _httpClient.PostToApiAsync<NhanVienDTO>(_httpClient.BaseAddress + $"/post", nhanVienDTO, _httpContextAccessor);
-                    return Json(new { jsonResponse });
+                    var responseActionPost = await _httpClient.PostToApiAsync<NhanVienDTO>(
+                        _httpClient.BaseAddress + "/post", nhanVienDTO, _httpContextAccessor
+                    );
+
+                    // Cập nhật các giá trị trả về từ API
+                    responseAPI.Status = responseActionPost.Status;
+                    responseAPI.Success = responseActionPost.Success;
+                    responseAPI.Message = responseActionPost.Message;
+
+                    return Json(responseAPI);
                 }
-                // Cập nhập
-                jsonResponse = await _httpClient.PutToApiAsync<NhanVienDTO>(_httpClient.BaseAddress + $"/put", nhanVienDTO, _httpContextAccessor);
-                return Json(new { jsonResponse });
+
+                // Trường hợp cập nhật
+                var responseActionPut = await _httpClient.PutToApiAsync<NhanVienDTO>(
+                    _httpClient.BaseAddress + "/put", nhanVienDTO, _httpContextAccessor
+                );
+
+                responseAPI.Success = responseActionPut.Success;
+                responseAPI.Message = responseActionPut.Message;
+
+                return Json(responseAPI);
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine("Gặp lỗi: " + ex.Message);
-                return StatusCode(500, ex.Message);
+                // Xử lý lỗi khi có vấn đề với yêu cầu HTTP
+                responseAPI.Success = false;
+                responseAPI.Message = "Có lỗi xảy ra khi kết nối với server.";
+                Console.WriteLine("Lỗi: " + ex.Message);
+
+                return Json(responseAPI); // Trả về lỗi trong response API
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi khác ngoài HttpRequestException
+                responseAPI.Success = false;
+                responseAPI.Message = "Đã xảy ra lỗi không xác định.";
+                Console.WriteLine("Lỗi: " + ex.Message);
+
+                return Json(responseAPI); // Trả về lỗi chung trong response API
             }
         }
+
+
         [HttpDelete]
         public async Task<IActionResult> Delete(int? id)
         {
             try
             {
-                string? jsonResponse = null;
-                
-                // Xóa
-                jsonResponse = await _httpClient.DeleteFromApiAsync(_httpClient.BaseAddress + $"/delete/{id}", _httpContextAccessor);
+                if (id == null)
+                {
+                    return BadRequest("ID không hợp lệ.");
+                }
 
-                return Json(new { jsonResponse });
+                var responseActionDelete = await _httpClient.DeleteFromApiAsync(_httpClient.BaseAddress + $"/delete/{id}", _httpContextAccessor);
+                return Json(responseActionDelete);
             }
             catch (HttpRequestException ex)
             {

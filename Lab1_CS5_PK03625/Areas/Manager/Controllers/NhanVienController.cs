@@ -5,12 +5,9 @@ using Lab.Models.DTOs.NhanVien;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Lab_CS5_PK03625.Areas.Manager.Controllers
 {
@@ -22,12 +19,11 @@ namespace Lab_CS5_PK03625.Areas.Manager.Controllers
     {
         private readonly AppSetting _appSetting;
         private readonly IUnitOfWork _unit;
-        private readonly IJWTRepository _jwt;
-        public NhanVienController(IOptionsMonitor<AppSetting> optionsMonitor, IUnitOfWork unit, IJWTRepository jwt)
+
+        public NhanVienController(IOptionsMonitor<AppSetting> optionsMonitor, IUnitOfWork unit)
         {
             _appSetting = optionsMonitor.CurrentValue;
             _unit = unit;
-            _jwt = jwt;
         }
 
         /// <summary>
@@ -37,10 +33,11 @@ namespace Lab_CS5_PK03625.Areas.Manager.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return Ok(new
+            var nhanViens = await _unit.NhanViens.GetAllAsync();
+            return Ok(new ResponseAPI<List<tblNhanVien>>
             {
-                success = true,
-                data = (await _unit.NhanViens.GetAllAsync()).ToList()
+                Success = true,
+                Data = nhanViens.ToList()
             });
         }
         /// <summary> 
@@ -48,13 +45,20 @@ namespace Lab_CS5_PK03625.Areas.Manager.Controllers
         /// </summary> 
         /// <param name="id">ID của người dùng.</param>
         /// <returns>Thông tin người dùng.</returns>
+
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            return Ok(new
+            var nhanVien = await _unit.NhanViens.GetAsync(x => x.MaNhanVien == id);
+            if (nhanVien == null)
             {
-                success = true,
-                data = await _unit.NhanViens.GetAsync(x => x.MaNhanVien == id)
+                return NotFound(new { Message = "Không tìm thấy nhân viên." });
+            }
+
+            return Ok(new ResponseAPI<tblNhanVien>
+            {
+                Success = true,
+                Data = nhanVien
             });
         }
 
@@ -65,24 +69,26 @@ namespace Lab_CS5_PK03625.Areas.Manager.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] NhanVienDTO nhanVien)
         {
-            tblNhanVien nv = new tblNhanVien
+            if (!ModelState.IsValid)
             {
-                HoTen = nhanVien.HoTen,
-                SoDienThoai = nhanVien.SoDienThoai,
-                NgaySinh = nhanVien.NgaySinh,
-                TenDangNhap = nhanVien.TenDangNhap,
-                MatKhau = nhanVien.MatKhau,
-                VaiTro = nhanVien.VaiTro
-            };
-            await _unit.NhanViens.AddAsync(nv);
+                return BadRequest(new { Message = "Dữ liệu không hợp lệ." });
+            }
 
-            await _unit.SaveAsync();
-
-            return Ok(new
+            try
             {
-                success = true,
-                message = $"Đã thêm dữ liệu nhân viên mang mã: {nv.MaNhanVien}"
-            });
+                var response = await _unit.NhanViens.AddAsyncByDTO(nhanVien);
+
+                if (response.Success.HasValue && response.Success.Value) //Ok
+                {
+                    return Ok(response);
+                }
+                //Lỗi
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = $"Lỗi cập nhật dữ liệu: {ex.Message}" });
+            }
         }
 
         /// <summary>
@@ -93,14 +99,26 @@ namespace Lab_CS5_PK03625.Areas.Manager.Controllers
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] NhanVienDTO nhanVien)
         {
-            await _unit.NhanViens.Update(nhanVien);
-            await _unit.SaveAsync();
-
-            return Ok(new
+            try
             {
-                success = true,
-                message = $"Đã thay đổi dữ liệu nhân viên mang mã: {nhanVien.MaNhanVien}"
-            });
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { Success = false, Message = "Dữ liệu không hợp lệ." });
+                }
+
+                await _unit.NhanViens.Update(nhanVien);
+
+                return Ok(new ResponseAPI<dynamic>
+                {
+                    Success = true,
+                    Message = $"Đã thay đổi dữ liệu nhân viên mang mã: {nhanVien.MaNhanVien}"
+                });
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, new { Message = $"Lỗi cập nhật dữ liệu: {ex.Message}" });
+            }
         }
 
         /// <summary>
@@ -111,21 +129,24 @@ namespace Lab_CS5_PK03625.Areas.Manager.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int? id)
         {
-            tblNhanVien? infoGoc = await _unit.NhanViens.GetAsync(x => x.MaNhanVien == id);
-            if (infoGoc == default)
+            if (id == null)
             {
-                return NotFound("Không tìm thấy dữ liệu muốn xóa.");
+                return BadRequest(new { Message = "ID không hợp lệ." });
             }
+
+            var infoGoc = await _unit.NhanViens.GetAsync(x => x.MaNhanVien == id);
+            if (infoGoc == null)
+            {
+                return NotFound(new { Message = "Không tìm thấy dữ liệu muốn xóa." });
+            }
+
             _unit.NhanViens.Remove(infoGoc);
 
-            await _unit.SaveAsync();
-
-            return Ok(new
+            return Ok(new ResponseAPI<dynamic>
             {
-                success = true,
-                message = $"Đã xóa dữ liệu nhân viên mang mã: {id}"
+                Success = true,
+                Message = $"Đã xóa dữ liệu nhân viên mang mã: {id}"
             });
         }
-
     }
 }

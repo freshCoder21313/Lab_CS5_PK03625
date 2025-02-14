@@ -4,32 +4,33 @@
     //#region Event handlers for showing detail
     $('#tbl1 tbody').on('click', 'td.details-control', function () {
         var tr = $(this).closest('tr');
-        var row = datatable.row(tr);  // Use 'datatable' instead of 'table'
+        var tdi = tr.find("i.fa");
+        var row = datatable.row(tr);
 
         if (row.child.isShown()) {
             row.child.hide();
             tr.removeClass('shown');
+            tdi.first().removeClass('fa-minus-square');
+            tdi.first().addClass('fa-plus-square');
         } else {
             row.child(format(row.data())).show();
             tr.addClass('shown');
+            tdi.first().removeClass('fa-plus-square');
+            tdi.first().addClass('fa-minus-square');
         }
     });
 
     function format(rowData) {
-        // Tạo một div để hiển thị chi tiết
         var div = $('<div/>').addClass('loading').text('Loading...');
 
-        // Gửi yêu cầu AJAX để lấy thông tin chi tiết
         $.ajax({
             url: '/Manager/Lab1/Get',
             data: { id: rowData.maNhanVien },
             dataType: 'json',
             success: function (json) {
-                // Kiểm tra nếu có dữ liệu trong response
-                if (json && json.data) {
-                    div.removeClass('loading'); // Xóa lớp loading
+                if (json && json.success && json.data) {
+                    div.removeClass('loading');
 
-                    // Tạo HTML cho các cột hiển thị
                     var detailsHtml = `
                 <div class="container">
                     <div class="row">
@@ -50,22 +51,19 @@
                     </div>
                 </div>`;
 
-                    // Thêm HTML chi tiết vào div
                     div.html(detailsHtml);
                 } else {
-                    // Nếu không có dữ liệu
                     div.html('<p>Không có thông tin chi tiết để hiển thị.</p>');
                 }
             },
             error: (xhr) => {
-                toastr.error('Hiện tại không thể xử lí yêu cầu của bạn.');
+                div.html('<p>Không thể lấy thông tin chi tiết.</p>');
+                console.error('Error fetching details:', xhr);
             }
         });
 
         return div;
     }
-
-
     //#endregion
 });
 
@@ -74,20 +72,16 @@ let datatable;
 function loadDatatable() {
     datatable = $('#tbl1').DataTable({
         ajax: {
-            url: "/manager/Lab1/GetAll",
+            url: "/Manager/Lab1/GetAll",
             dataSrc: 'data',
             error: (xhr) => {
                 // Redirect to login page if the request fails
+                toastr.error("Không thể tải dữ liệu. Vui lòng kiểm tra lại.");
                 window.location.href = "/Customer/Account/Login";
             }
         },
         columns: [
-            {
-                className: 'details-control',
-                orderable: false,
-                data: null,
-                defaultContent: '<button class="btn btn-info">+</button>'
-            },
+            defaultTdToShowDetail,
             {
                 data: 'maNhanVien',
                 width: "15%",
@@ -127,36 +121,39 @@ function loadDatatable() {
     });
 }
 
-
-
 function deleteStaffRecord(staffId) {
-    $.ajax({
-        url: `/Manager/Lab1/Delete/`,
-        data: { id: staffId },
-        method: 'DELETE',
-        success: (response) => {
-            handleResponse(handleJsonData(response.jsonResponse));
-            datatable.ajax.reload();
-        },
-        error: (xhr) => {
-            toastr.error("Lỗi", "Hiện không thể xử lí yêu cầu của bạn.");
-            console.log(xhr);
-        }
-    })
+    if (confirm("Bạn có chắc chắn muốn xóa nhân viên này không?")) {
+        $.ajax({
+            url: `/Manager/Lab1/Delete/`,
+            data: { id: staffId },
+            method: 'DELETE',
+            success: (response) => {
+                if (response.success) {
+                    toastr.success(response.message);
+                    datatable.ajax.reload();
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: (xhr) => {
+                toastr.error("Có lỗi xảy ra khi xóa bản ghi.");
+                console.log(xhr);
+            }
+        });
+    }
 }
 
 function loadViewUpsertStaff(staffId) {
-    // Gửi yêu cầu AJAX
     $.ajax({
         url: `/Manager/Lab1/Upsert/`,
-        data: {id: staffId},
+        data: { id: staffId },
         method: 'GET',
-        success: (data) => {
-            $('#upsertModal .modal-content').html(data);
+        success: (response) => {
+            $('#upsertModal .modal-content').html(response);
         },
         error: (xhr) => {
-            toastr.error("Có lỗi xảy ra: " + xhr.responseText); // Hiển thị lỗi từ server
-            console.error("Error:", xhr.responseText); // Log lỗi
+            toastr.error("Có lỗi xảy ra: " + xhr.responseText);
+            console.error("Error:", xhr.responseText);
         }
     });
 }
@@ -165,8 +162,9 @@ function actionUpsertStaff(event) {
     event.preventDefault();
 
     var formData = new FormData(document.getElementById('formUpsertStaff'));
-    console.log(formData);
-    // Gửi yêu cầu AJAX
+
+    logValueForm(formData);
+
     $.ajax({
         url: `/Manager/Lab1/Upsert/`, // URL API
         data: formData, // Dữ liệu form
@@ -174,28 +172,24 @@ function actionUpsertStaff(event) {
         processData: false, // Không xử lý dữ liệu form
         contentType: false, // Để content-type mặc định của FormData
         success: (response) => {
-            const data = handleJsonData(response.jsonResponse);
 
-            if (data == undefined) {
-                const htmlWithValidate = response.htmlWithValidate;
+            console.log(response);
 
-                $('#upsertModal .modal-content').html(htmlWithValidate); // Cập nhật lại form nếu có lỗi
-            }
+            if (response.success) {
+                toastr.success(response.message); // Hiển thị thông báo thành công
 
-            if (data.success) {
-                toastr.success(data.message); // Hiển thị thông báo thành công
-                if (dataTable) {
-                    dataTable.ajax.reload(); // Reload bảng dữ liệu nếu tồn tại
-                    loadViewUpsertStaff();
-                }
+                datatable.ajax.reload(); 
                 loadViewUpsertStaff();
             } else {
-                toastr.error(data.message); // Hiển thị thông báo lỗi
+                if (response.htmlWithValidate) {
+                    $('#upsertModal .modal-content').html(response.htmlWithValidate ?? null); // Cập nhật lại form nếu có lỗi
+                }
+                toastr.error(response.message); // Hiển thị thông báo lỗi
             }
         },
         error: (xhr) => {
-            toastr.error("Có lỗi xảy ra: " + xhr.responseText); // Hiển thị lỗi từ server
-            console.error("Error:", xhr.responseText); // Log lỗi
+            toastr.error("Có lỗi xảy ra: " + xhr.statusText); // Hiển thị thông báo lỗi
+            console.error("Error:", xhr.responseText);
         }
     });
 }

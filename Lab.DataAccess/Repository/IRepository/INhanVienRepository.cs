@@ -11,5 +11,6 @@ namespace Lab.DataAccess.Repository.IRepository
     public interface INhanVienRepository : IRepository<tblNhanVien>
     {
         Task Update(NhanVienDTO objDTO);
+        Task<ResponseAPI<dynamic>> AddAsyncByDTO(NhanVienDTO objDTO);
     }
 }

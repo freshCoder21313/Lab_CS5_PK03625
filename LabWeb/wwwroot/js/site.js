@@ -1,4 +1,5 @@
-﻿toastr.options = {
+﻿//#region Format toastr
+toastr.options = {
     "closeButton": true,            // Hiển thị nút đóng
     "debug": false,                  // Debug mode
     "newestOnTop": true,             // Hiển thị thông báo mới nhất trên cùng
@@ -14,7 +15,9 @@
     "showMethod": "fadeIn",          // Phương thức hiển thị
     "hideMethod": "fadeOut"          // Phương thức ẩn
 };
+//#endregion
 
+//#region Handling api
 const defaultPathAPI = "https://localhost:7094/api/";
 
 function handleResponse(response) {
@@ -33,6 +36,21 @@ class ResponseAPI {
         this.htmlWithValidate = htmlWithValidate;
         this.data = data;
     }
+}
+
+function logValueForm(formData) {
+    // Log dữ liệu để kiểm tra
+    for (var pair of formData.entries()) {
+        console.log(pair[0] + ', ' + pair[1]);
+    }
+}
+
+function changeValueForm(formData) {
+    var data = {};
+    formData.forEach((value, key) => {
+        data[key.replace(/^Data\./, '')] = value;
+    });
+    return data;
 }
 
 function convertFromJson(jsonResponse) {
@@ -59,6 +77,28 @@ function handleJsonData(data) {
     return data;
 }
 
+function attachDetailsControl(tableSelector, format) {
+    $(tableSelector + ' tbody').on('click', 'td.details-control', function () {
+        var tr = $(this).closest('tr');
+        var tdi = tr.find("i.fa");
+        var row = $(tableSelector).DataTable().row(tr);
+
+        if (row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass('shown');
+            tdi.first().removeClass('fa-minus-square');
+            tdi.first().addClass('fa-plus-square');
+        } else {
+            row.child(format(row.data())).show();
+            tr.addClass('shown');
+            tdi.first().removeClass('fa-plus-square');
+            tdi.first().addClass('fa-minus-square');
+        }
+    });
+}
+//#endregion
+
+//#region Default value for Datatable
 const defaultLanguageDatatable = {
     "sSearch": "Tìm kiếm:",
     "lengthMenu": "Hiển thị _MENU_ mục",
@@ -73,3 +113,16 @@ const defaultLanguageDatatable = {
     "infoEmpty": "Không có mục nào để hiển thị",
     "infoFiltered": "(lọc từ _MAX_ mục)"
 }
+
+const defaultTdToShowDetail =
+{
+    "className": 'details-control',
+    "orderable": false,
+    "data": null,
+    "defaultContent": '',
+    "render": function () {
+        return '<i class="fa fa-plus-square" aria-hidden="true"></i>';
+    },
+    "width": "15px"
+}
+//#endregion

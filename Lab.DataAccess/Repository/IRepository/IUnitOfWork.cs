@@ -10,6 +10,6 @@ namespace Lab.DataAccess.Repository.IRepository
     {
         INhanVienRepository NhanViens { get; }
         ISanPhamRepository SanPhams { get; }
-        Task SaveAsync();
+        //Task SaveAsync();
     }
 }
