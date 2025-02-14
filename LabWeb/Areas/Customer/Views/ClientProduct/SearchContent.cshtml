@@ -1,0 +1,40 @@
+﻿@using Lab.Models
+@using Lab.Models.ViewModels
+@model ResponseAPI<List<SanPhamVM>>
+
+
+<div class="row p-3">
+    @if(Model?.Data == null || Model?.Data?.Count() == 0)
+    {
+        <h1 class="text-center">Hiện không có sản phẩm trong kho dữ liệu</h1>
+    } else
+    {
+        foreach(var product in Model.Data)
+        {
+            <div class="col-lg-3 col-sm-6">
+                <div class="row p-2">
+                    <div class="col-12 p-1">
+                        <div class="card border-0 p-3 shadow border-top border-5 rounded">
+                            <img src="" class="card-img-top rounded" />
+                            <div class="pl-1">
+                                <p class="card-title h5 text-black opacity-75 text-uppercase text-center">@product.TenSanPham</p>
+                                @* <p class="card-title text-warning text-center">@product.DonGia</p> *@
+                            </div>
+                            <div class="pl-1">
+                                <p class="text-black opacity-75 text-center mb-0">
+                                    Giá: 
+                                    <span class="text-decoration-line-through">
+                                        @Html.DisplayFor(model => product.DonGia, "N0", new System.Globalization.CultureInfo("vi-VN")) VND
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button class="btn">🛒</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

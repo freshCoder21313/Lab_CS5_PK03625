@@ -18,7 +18,6 @@ namespace Lab.API.Areas.Manager.Controllers
     [Area("Manager")]
     [Route("api/[area]/[controller]/[action]")]
     [ApiController]
-    [Authorize]
     public class SanPhamController : ControllerBase
     {
         private readonly IUnitOfWork _unit;
@@ -39,6 +38,7 @@ namespace Lab.API.Areas.Manager.Controllers
             var responseSpVMs = await _unit.SanPhams.GetAllAsync();
             return Ok(responseSpVMs);
         }
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] SanPhamDTO sanPhamDTO)
         {
@@ -67,6 +67,8 @@ namespace Lab.API.Areas.Manager.Controllers
         /// Cập nhập dữ liệu 1 đối tượng
         /// </summary>
         /// <param name="sanPhamDTO">Dữ liệu san phẩm cập nhập.</param>
+
+        [Authorize]
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] SanPhamDTO sanPhamDTO)
         {
@@ -95,6 +97,8 @@ namespace Lab.API.Areas.Manager.Controllers
         /// </summary>
         /// <param name="id">ID của sẩn phẩm.</param>
         /// <returns>Xóa dữ liệu dữ liệu 1 đối tượng theo id</returns>
+
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int? id)
         {

@@ -32,7 +32,7 @@ namespace LabWeb.Areas.Manager.Controllers
         {
             try
             {
-                var responseAPI = await _httpClient.GetFromApiAsync<ResponseAPI<SanPhamDTO>>(_httpClient.BaseAddress + $"/get/{id}", _httpContextAccessor);
+                var responseAPI = await _httpClient.GetFromApiAsync<ResponseAPI<SanPhamDTO>>(_httpClient.BaseAddress + $"/get/{id}", _httpContextAccessor, requiredAuth: false);
                 return Json(responseAPI);
             }
             catch (HttpRequestException ex)
@@ -160,7 +160,7 @@ namespace LabWeb.Areas.Manager.Controllers
         {
             try
             {
-                var tbls = await _httpClient.GetFromApiAsync<ResponseAPI<List<SanPhamVM>>>(_httpClient.BaseAddress + $"/HandFilterByPriceAndManualSortByPrice?giaNhoNhat={giaNhoNhat}&giaLonNhat={giaLonNhat}", _httpContextAccessor);
+                var tbls = await _httpClient.GetFromApiAsync<ResponseAPI<List<SanPhamVM>>>(_httpClient.BaseAddress + $"/HandFilterByPriceAndManualSortByPrice?giaNhoNhat={giaNhoNhat}&giaLonNhat={giaLonNhat}", _httpContextAccessor, requiredAuth: false);
                 return Json(tbls);
             }
             catch (HttpRequestException ex)

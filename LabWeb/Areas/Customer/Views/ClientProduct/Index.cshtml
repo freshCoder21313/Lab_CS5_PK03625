@@ -1,0 +1,35 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Trang tìm kiếm sản phẩm</h1>
+
+
+<div class="row pb-3">
+    <div class="row justify-content-between align-items-center shadow p-4 rounded-1">
+        <div class="col-3">
+            <label for="minPriceProduct">Giá nhỏ nhất: </label>
+            <input id="minPriceProduct" type="number" min="0" placeholder="Nhập giá lọc nhỏ nhất..."
+                   oninput="document.getElementById('maxPriceProduct').min = this.value;" class="form-control" />
+        </div>
+
+        <div class="col-3">
+            <label for="maxPriceProduct">Giá lớn nhất: </label>
+            <input id="maxPriceProduct" type="number" min="0" placeholder="Nhập giá lọc lớn nhất..."
+                   oninput="document.getElementById('minPriceProduct').max = this.value;" class="form-control" />
+        </div>
+
+        <div class="col-3 text-end">
+            <button onclick="loadClientProductContent()" id="btnFilter" class="btn btn-info">Lọc</button>
+        </div>
+    </div>
+</div>
+
+
+<div id="frameContentProduct" class="containter"></div>
+
+@section Scripts{
+    <script src="~/js/areas/customer/clientProduct.js" asp-append-version="true"></script>
+}
