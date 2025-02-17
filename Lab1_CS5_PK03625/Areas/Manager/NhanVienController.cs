@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Lab_CS5_PK03625.Areas.Manager.Controllers
+namespace Lab.API.Areas.Manager
 {
     [Area("Manager")]
     [Route("api/[area]/[controller]/[action]")]

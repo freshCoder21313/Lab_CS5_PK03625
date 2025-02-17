@@ -13,7 +13,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Lab.API.Areas.Manager.Controllers
+namespace Lab.API.Areas.Manager
 {
     [Area("Manager")]
     [Route("api/[area]/[controller]/[action]")]
@@ -113,7 +113,7 @@ namespace Lab.API.Areas.Manager.Controllers
         [HttpGet]
         public async Task<IActionResult> ManualSortByName()
         {
-            ResponseAPI<List<SanPhamVM>> responseSp = (await _unit.SanPhams.GetAllAsyncVM());
+            ResponseAPI<List<SanPhamVM>> responseSp = await _unit.SanPhams.GetAllAsyncVM();
 
             responseSp.Data = responseSp.Data.OrderBy(x => x.TenSanPham).ToList();
 
