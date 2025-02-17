@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace YourNamespace.Controllers
+namespace Lab.API.Areas.Customer
 {
 	[Route("api/[controller]/[action]")]
 	[ApiController]
@@ -32,12 +32,12 @@ namespace YourNamespace.Controllers
 			// Tạo giỏ hàng mẫu để tính tổng tiền
 			var cartItems = new List<GioHang>
 			{
-				new GioHang { MaSanPham = 1, TenSanPham = "Sản phẩm 1", SoLuong = 2, Gia = 10000 },
-				new GioHang { MaSanPham = 2, TenSanPham = "Sản phẩm 2", SoLuong = 1, Gia = 20000 }
+				new GioHang { MaSanPham = 1, TenSanPham = "Sản phẩm 1", SoLuong = 2, DonGia = 10000 },
+				new GioHang { MaSanPham = 2, TenSanPham = "Sản phẩm 2", SoLuong = 1, DonGia = 20000 }
 			};
 
 			// Tính tổng tiền
-			var totalAmount = cartItems.Sum(c => c.SoLuong * c.Gia);
+			var totalAmount = cartItems.Sum(c => c.SoLuong * c.DonGia);
 
 			// Tạo URL thanh toán qua VNPay
 			var paymentUrl = _vnPayService.CreatePaymentUrl(HttpContext, new VnPaymentRequestModel

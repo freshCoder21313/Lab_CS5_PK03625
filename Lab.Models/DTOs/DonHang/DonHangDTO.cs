@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lab.Models
+namespace Lab.Models.DTOs.DonHang
 {
-    public class DonHang
+    public class DonHangDTO
     {
-        [Key]
         public int MaDonHang { get; set; }
         public string? NguoiDungId { get; set; } = string.Empty;
         public DateTime NgayDatHang { get; set; }
@@ -20,7 +18,5 @@ namespace Lab.Models
         public string? ThanhPho { get; set; } = string.Empty;
         public string? SoDienThoai { get; set; } = string.Empty;
         public string? MaPhienThanhToan { get; set; } = string.Empty;
-        public IEnumerable<GioHang>? GioHangs { get; set; }
     }
-
 }

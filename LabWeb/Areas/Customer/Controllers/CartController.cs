@@ -29,7 +29,7 @@ namespace LabWeb.Areas.Customer.Controllers
         {
             try
             {
-                List<SanPhamVM> sanPhamVMs = GetCarts();
+                List<GioHang> sanPhamVMs = GetCarts();
 
                 if (sanPhamVMs.Any(sp => sp.MaSanPham == maSanPham))
                 {
@@ -42,7 +42,7 @@ namespace LabWeb.Areas.Customer.Controllers
                     return Json(response);
                 }
 
-                var responseAPI = await _httpClient.GetFromApiAsync<ResponseAPI<SanPhamVM>>(_httpClient.BaseAddress + $"/get/{maSanPham}", _httpContextAccessor, requiredAuth: false) ?? new ResponseAPI<SanPhamVM>();
+                var responseAPI = await _httpClient.GetFromApiAsync<ResponseAPI<GioHang>>(_httpClient.BaseAddress + $"/get/{maSanPham}", _httpContextAccessor, requiredAuth: false) ?? new ResponseAPI<GioHang>();
 
                 if (responseAPI.Data == null)
                 {
@@ -97,11 +97,11 @@ namespace LabWeb.Areas.Customer.Controllers
         #endregion
         #region NonAction
         [NonAction]
-        private List<SanPhamVM> GetCarts()
+        private List<GioHang> GetCarts()
         {
-            return HttpContext.Session.GetComplexData<List<SanPhamVM>>(SD.CartSession) ?? new List<SanPhamVM>();
+            return HttpContext.Session.GetComplexData<List<GioHang>>(SD.CartSession) ?? new List<GioHang>();
         }
-        private void SetCarts(List<SanPhamVM> carts)
+        private void SetCarts(List<GioHang> carts)
         {
             HttpContext.Session.SetComplexData(SD.CartSession, carts);
         }
