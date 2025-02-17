@@ -35,16 +35,16 @@ namespace Lab.API.Areas.Customer
 		[HttpPost]
 		public async Task<IActionResult> GetPaymentUrl([FromBody]List<GioHang> gioHangs)
 		{
-            int? userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			if (!userId.HasValue || userId.Value == 0)
+			if (String.IsNullOrEmpty(userId))
 			{
 				return Ok(new ResponseAPI<dynamic>
 				{
 					Message = "Lỗi truy vấn dữ liệu."
 				});
 			}
-			var responseCreatePayment = await _unit.Payments.CreatePayment(userId.Value, gioHangs);
+			var responseCreatePayment = await _unit.Payments.CreatePayment(userId, gioHangs);
 
 
             // Tạo URL thanh toán qua VNPay

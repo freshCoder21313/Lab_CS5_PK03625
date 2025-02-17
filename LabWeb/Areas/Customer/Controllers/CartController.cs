@@ -104,7 +104,7 @@ namespace LabWeb.Areas.Customer.Controllers
             {
                 responseAPI.Message = ex.Message;
                 throw;
-            }
+        }
             return Json(responseAPI);
         }
         #region GET API

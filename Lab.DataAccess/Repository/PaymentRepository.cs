@@ -18,7 +18,7 @@ namespace Lab.DataAccess.Repository
         {
             _db = db;
         }
-        public async Task<ResponseAPI<dynamic>> CreatePayment(int userId, IEnumerable<GioHang> gioHangs)
+        public async Task<ResponseAPI<dynamic>> CreatePayment(string userId, IEnumerable<GioHang> gioHangs)
         {
             ResponseAPI<dynamic> response = new ResponseAPI<dynamic>();
 
@@ -57,7 +57,7 @@ namespace Lab.DataAccess.Repository
             var totalAmount = chiTiets.Sum(c => c.SoLuong * c.DonGia);
 
             return new ResponseAPI<dynamic>
-            {
+    {
                 Success = true,
                 Status = 200,
                 Data = totalAmount,

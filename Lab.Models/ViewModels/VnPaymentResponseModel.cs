@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lab.Services.VnPay.Response
+namespace Lab.Models.ViewModels
 {
-    public class VnPayResponse
+    public class VnPaymentResponseModel
     {
         public bool Success { get; set; }
-
         public string PaymentMethod { get; set; }
         public string OrderDescription { get; set; }
         public string OrderId { get; set; }
@@ -17,16 +16,14 @@ namespace Lab.Services.VnPay.Response
         public string TransactionId { get; set; }
         public string Token { get; set; }
         public string VnPayResponseCode { get; set; }
-    }
 
-    public class VnPayRequest
+    }
+    public class VnPaymentRequestModel
     {
         public string OrderId { get; set; }
         public string FullName { get; set; }
         public string Description { get; set; }
         public double Amount { get; set; }
         public DateTime CreatedDate { get; set; }
-
-
     }
 }

@@ -105,9 +105,6 @@ namespace Lab.API
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
             builder.Services.AddScoped<IJWTRepository, JWTRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IThongKeRepository, ThongKeRepository>();
-            builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
-            //builder.Services.AddScoped<IVnPayService, VnPayService>();
 
             #region //Cấu hình mã Secret và Authentication
             builder.Services.Configure<AppSetting>(builder.Configuration.GetSection("AppSettings"));

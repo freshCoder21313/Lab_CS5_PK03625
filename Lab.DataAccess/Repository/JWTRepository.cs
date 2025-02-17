@@ -114,7 +114,7 @@ namespace Lab.DataAccess.Repository
             }
 
             var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             var nguoiDung = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             if (nguoiDung == null)

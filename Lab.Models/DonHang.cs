@@ -11,7 +11,7 @@ namespace Lab.Models
     {
         [Key]
         public int MaDonHang { get; set; }
-        public int? NguoiDungId { get; set; }
+        public string? NguoiDungId { get; set; }
         public DateTime NgayDatHang { get; set; }
         public decimal TongTienDonHang { get; set; }
         public string? TrangThaiThanhToan { get; set; } = string.Empty;
