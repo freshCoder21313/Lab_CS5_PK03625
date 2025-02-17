@@ -13,6 +13,8 @@ namespace Lab.DataAccess.Data
         public ApplicationDbContext(DbContextOptions options): base(options) { }
         public DbSet<tblNhanVien> NhanViens { get; set; }
         public DbSet<tblSanPham> SanPhams { get; set; }
+        public DbSet<DonHang> DonHangs { get; set; }
+        //public DbSet<GioHang> GioHangs { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

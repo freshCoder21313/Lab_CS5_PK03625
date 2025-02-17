@@ -16,5 +16,6 @@ namespace Lab.DataAccess.Repository.IRepository
         string GenerateRefreshToken(string idUser);
         Task<TokenVM> RefreshToken(string refreshToken);
         ClaimsPrincipal ValidateRefreshToken(string refreshToken);
+        Task<TokenVM> ChangeVersionAccessToken(string accessToken);
     }
 }

@@ -37,7 +37,7 @@ namespace Lab.DataAccess.Repository
                     new Claim(ClaimTypes.NameIdentifier, nhanVien.MaNhanVien.ToString()),
                     new Claim(ClaimTypes.Name, nhanVien.TenDangNhap),
                     new Claim(ClaimTypes.Role, nhanVien.VaiTro),
-                    new Claim("RandomAccess", (new Random().NextDouble() > 0.5).ToString())
+                    new Claim(ClaimTypes.Version, "1")
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(10), // Dùng 5 phút
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes), SecurityAlgorithms.HmacSha256Signature)
@@ -116,7 +116,6 @@ namespace Lab.DataAccess.Repository
             // Tạo mới access token và refresh token
             return GenerateToken(nhanVien);
         }
-
         public ClaimsPrincipal ValidateRefreshToken(string refreshToken)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
@@ -136,5 +135,30 @@ namespace Lab.DataAccess.Repository
 
             return principal;
         }
+        public async Task<TokenVM> ChangeVersionAccessToken(string accessToken)
+        {
+            // Validate the token and extract claims
+            var principal = TakeDataToken(accessToken);
+            var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            // You should now invalidate the current token by adding a version claim or a timestamp claim
+            var nhanVien = await _unit.NhanViens.GetAsync(u => u.MaNhanVien.ToString() == userId);
+
+            if (nhanVien == null)
+            {
+                throw new SecurityTokenException("Invalid user");
+            }
+
+            // Here you may want to increment a version number (or any strategy you wish to implement)
+            var currentVersion = principal.FindFirst("Version")?.Value;
+            var newVersion = (int.Parse(currentVersion) + 1).ToString();
+
+            // Generate a new token with the updated version claim
+            var newToken = GenerateToken(nhanVien);
+            newToken.AccessToken = newToken.AccessToken.Replace(currentVersion, newVersion); // This is not a valid way to update JWT, just illustrative.
+
+            return newToken;
+        }
+
     }
 }

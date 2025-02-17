@@ -11,6 +11,6 @@ namespace Lab.Models.DTOs.SanPham
         public int? MaSanPham { get; set; }
         public string? TenSanPham { get; set; }
         public int SoLuong { get; set; }
-        public double DonGia { get; set; }
+        public decimal DonGia { get; set; }
     }
 }
