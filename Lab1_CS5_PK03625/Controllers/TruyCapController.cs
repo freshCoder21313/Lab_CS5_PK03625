@@ -152,5 +152,15 @@ namespace Lab.API.Controllers
                 });
             }
         }
+        [HttpPost]
+        public IActionResult Logout(string accessToken)
+        {
+            var response = _jwt.ChangeVersionAccessToken(accessToken);
+            return Ok(new
+            {
+                success = true,
+                message = response
+            });
+        }
     }
 }

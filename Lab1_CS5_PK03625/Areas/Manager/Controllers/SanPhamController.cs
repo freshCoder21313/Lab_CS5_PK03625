@@ -126,7 +126,7 @@ namespace Lab.API.Areas.Manager.Controllers
         /// <param name="giaLonNhat">Hãy chọn giá lớn nhất.</param>
         /// <returns>Lọc theo khoảng giá và sắp xếp theo id giảm dần</returns>
         [HttpGet]
-        public async Task<IActionResult> HandFilterByPriceAndManualSortByPrice(double giaNhoNhat, double giaLonNhat)
+        public async Task<IActionResult> HandFilterByPriceAndManualSortByPrice(decimal giaNhoNhat, decimal giaLonNhat)
         {
             ResponseAPI<List<SanPhamVM>> responseSp = await _unit.SanPhams.GetAllAsyncVM(sp => sp.DonGia > giaNhoNhat && sp.DonGia < giaLonNhat);
 

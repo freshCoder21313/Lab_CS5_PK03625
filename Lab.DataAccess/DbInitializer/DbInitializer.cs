@@ -70,7 +70,7 @@ namespace Lab.DataAccess.DbInitializer
                 {
                     TenSanPham = RandomData_DB.Instance.RandomProductName(),
                     SoLuong = rd.Next(10,100),
-                    DonGia = rd.NextDouble() * 1000000
+                    DonGia = (decimal)(rd.NextDouble() * 1000000)
                 };
                 objs.Add(blankObject);
             }

@@ -11,7 +11,7 @@
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
-    @RenderSection("SelfCSSs", required: false)
+    @RenderSection("CSSs", required: false)
 </head>
 <body>
     <header>
@@ -30,11 +30,15 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="Customer" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Manager" asp-controller="Lab1" asp-action="Index">Lab1</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Manager" asp-controller="Lab2" asp-action="Index">Lab2</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">Lab</a>
+                            <div class="dropdown-menu" data-bs-popper="static">
+                                <a class="dropdown-item nav-link text-dark" asp-area="Manager" asp-controller="Lab1" asp-action="Index">Lab1</a>
+                                <a class="dropdown-item nav-link text-dark" asp-area="Manager" asp-controller="Lab2" asp-action="Index">Lab2</a>
+                                <a class="dropdown-item" href="#">Something else here</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">Separated link</a>
+                            </div>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="Customer" asp-controller="ClientProduct" asp-action="Index">Tìm kiếm sản phẩm</a>
@@ -65,8 +69,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/areas/customer/clientCart.js" asp-append-version="true"></script>
 
-    @await RenderSectionAsync("SelfScripts", required: false)
     @await RenderSectionAsync("Scripts", required: false)
     <partial name="_Notification.cshtml" />
 

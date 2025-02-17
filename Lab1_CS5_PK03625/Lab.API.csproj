@@ -18,10 +18,12 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="VnPay.Net" Version="8.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Lab.DataAccess\Lab.DataAccess.csproj" />
+    <ProjectReference Include="..\Lab.Services\Lab.Services.csproj" />
     <ProjectReference Include="..\Lab.Utility\Lab.Utility.csproj" />
   </ItemGroup>
 
