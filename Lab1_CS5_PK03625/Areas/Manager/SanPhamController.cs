@@ -1,4 +1,5 @@
-﻿using Lab.DataAccess.Repository.IRepository;
+﻿using Lab.API.Services.IServices;
+using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
 using Lab.Models.DTOs.NhanVien;
 using Lab.Models.DTOs.SanPham;
@@ -21,9 +22,12 @@ namespace Lab.API.Areas.Manager
     public class SanPhamController : ControllerBase
     {
         private readonly IUnitOfWork _unit;
-        public SanPhamController(IUnitOfWork unit)
+        private readonly IRedisCacheService cache;
+
+        public SanPhamController(IUnitOfWork unit, IRedisCacheService cache)
         {
             _unit = unit;
+            this.cache = cache;
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
@@ -35,7 +39,19 @@ namespace Lab.API.Areas.Manager
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var responseSpVMs = await _unit.SanPhams.GetAllAsync();
+            var userId = Request.Headers["UserId"];
+
+            var cachingKey = $"products_{userId}";
+
+            var responseSpVMs = cache.GetData<IEnumerable<tblSanPham>>(cachingKey);
+            if (responseSpVMs is not null)
+            {
+                return Ok(responseSpVMs);
+            }
+
+            responseSpVMs = await _unit.SanPhams.GetAllAsync();
+
+            cache.SetData(cachingKey, responseSpVMs);
             return Ok(responseSpVMs);
         }
         [Authorize]

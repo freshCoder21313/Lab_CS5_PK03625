@@ -1,14 +1,19 @@
-﻿using Lab.DataAccess.Data;
+﻿using Lab.API.Middleware;
+using Lab.API.Services;
+using Lab.API.Services.IServices;
+using Lab.DataAccess.Data;
 using Lab.DataAccess.DbInitializer;
 using Lab.DataAccess.Repository;
 using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
-using Lab.Services.VnPay;
+//using Lab.Services.VnPay;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
+using System.Configuration;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -32,6 +37,11 @@ namespace Lab.API
                 });
             });
 
+            // Add Redis
+            //builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(builder.Configuration.GetSection("Redis:Configuration").Value));
+            builder.Services.AddScoped<TokenService>();
+            builder.Services.AddScoped<JWTRepository>();
+
             // Add services to the container.
             builder.Services.AddControllers();
 
@@ -39,7 +49,7 @@ namespace Lab.API
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            
+
             #region Đăng ký Swagger
             builder.Services.AddSwaggerGen(c =>
             {
@@ -82,7 +92,8 @@ namespace Lab.API
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
             builder.Services.AddScoped<IJWTRepository, JWTRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
+            //builder.Services.AddScoped<IVnPayService, VnPayService>();
 
             #region //Cấu hình mã Secret và Authentication
             builder.Services.Configure<AppSetting>(builder.Configuration.GetSection("AppSettings"));
@@ -96,52 +107,59 @@ namespace Lab.API
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(option =>
+            .AddJwtBearer(option =>
+            {
+                option.TokenValidationParameters = new TokenValidationParameters
                 {
-                    option.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
-                        ClockSkew = TimeSpan.Zero
-                    };
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
+                    ClockSkew = TimeSpan.Zero
+                };
 
-                    // Xử lý khi token hết hạn hoặc không hợp lệ
-                    option.Events = new JwtBearerEvents
+                // Xử lý khi token hết hạn hoặc không hợp lệ
+                option.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
                     {
-                        OnAuthenticationFailed = context =>
+                        if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
                         {
-                            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-                            {
-                                context.Response.Headers.Add("Token-Expired", "true");
-                                context.Response.StatusCode = 401;
-                                context.Response.ContentType = "application/json";
-                                var result = JsonSerializer.Serialize(new
-                                {
-                                    status = 401,
-                                    message = "Mã token đã hết hạn"
-                                });
-                                return context.Response.WriteAsync(result);
-                            }
-                            return Task.CompletedTask;
-                        },
-
-                        OnChallenge = context =>
-                        {
-                            context.HandleResponse();
+                            context.Response.Headers.Add("Token-Expired", "true");
                             context.Response.StatusCode = 401;
                             context.Response.ContentType = "application/json";
                             var result = JsonSerializer.Serialize(new
                             {
                                 status = 401,
-                                message = "Bạn chưa đăng nhập"
+                                message = "Mã token đã hết hạn"
                             });
                             return context.Response.WriteAsync(result);
                         }
-                    };
-                }).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+                        return Task.CompletedTask;
+                    },
+
+                    OnChallenge = context =>
+                    {
+                        context.HandleResponse();
+                        context.Response.StatusCode = 401;
+                        context.Response.ContentType = "application/json";
+                        var result = JsonSerializer.Serialize(new
+                        {
+                            status = 401,
+                            message = "Bạn chưa đăng nhập"
+                        });
+                        return context.Response.WriteAsync(result);
+                    }
+                };
+            }).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
             #endregion
+
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = builder.Configuration["Redis:Configuration"];
+                options.InstanceName = builder.Configuration["Redis:InstanceName"];
+            });
+
 
             var app = builder.Build();
 
@@ -151,10 +169,11 @@ namespace Lab.API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseRouting();
             app.UseHttpsRedirection();
 
             app.UseCors("MyPolicy");
+            app.UseMiddleware<TokenValidationMiddleware>();
 
             app.UseAuthentication();
             app.UseAuthorization();

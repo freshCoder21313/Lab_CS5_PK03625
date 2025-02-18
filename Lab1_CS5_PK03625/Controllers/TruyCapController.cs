@@ -1,7 +1,9 @@
-﻿using Lab.DataAccess.Repository.IRepository;
+﻿using Lab.API.Services;
+using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
 using Lab.Models.ViewModels;
 using Lab.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -19,17 +21,26 @@ namespace Lab.API.Controllers
         private readonly AppSetting _appSetting;
         private readonly IUnitOfWork _unit;
         private readonly IJWTRepository _jwt;
+        private readonly TokenService _tokenService;
 
-        public TruyCapController(IOptionsMonitor<AppSetting> optionsMonitor, IUnitOfWork unit, IJWTRepository jwt)
+        public TruyCapController(IOptionsMonitor<AppSetting> optionsMonitor, IUnitOfWork unit, IJWTRepository jwt, TokenService tokenService)
         {
             _appSetting = optionsMonitor.CurrentValue;
             _unit = unit;
             _jwt = jwt;
+            _tokenService = tokenService;
         }
 
         /// <summary>
         /// Đăng nhập tài khoản nhân viên
         /// </summary>
+        /// <remarks>
+        ///     POST
+        ///         {
+        ///           "userName": "noname0",
+        ///           "password": "nopass0"
+        ///         }
+        /// </remarks>
         /// <param name="dangNhap">Thông tin đăng nhập. (Vui lòng chạy mã /api/Manager/NhanVien/Get để có thông tin tài khoản có thể truy cập.) [username: noname0] - [password: nopass0]</param>
         /// <returns>Đăng nhập tài khoản nhân viên để lấy được mã Token truy cập</returns>
         [HttpPost]
@@ -49,6 +60,7 @@ namespace Lab.API.Controllers
             if (userLogin != null)
             {
                 TokenVM tokenVM = _jwt.GenerateToken(userLogin);
+                await _tokenService.StoreTokenAsync(userLogin.MaNhanVien.ToString(), tokenVM.AccessToken, TimeSpan.FromSeconds(30)); //Note: Key
 
                 return Ok(new
                 {
@@ -69,9 +81,9 @@ namespace Lab.API.Controllers
         /// </summary>
         /// <param name="token">Mã token nhận được sau khi đăng nhập.</param>
         /// <returns>Xem dữ liệu được lưu trong claims sau khi đăng nhập với tài khoản nhân viên</returns>
-
+        [Authorize]
         [HttpGet("ValidateToken/{token}")]
-        public IActionResult ValidateToken(string token)
+        public async Task<IActionResult> ValidateToken(string token)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
@@ -84,7 +96,7 @@ namespace Lab.API.Controllers
 
             try
             {
-                var principal = _jwt.TakeDataToken(token);
+                var principal = await _jwt.TakeDataTokenAsync(token);
                 return Ok(new
                 {
                     success = true,
@@ -153,14 +165,18 @@ namespace Lab.API.Controllers
             }
         }
         [HttpPost]
-        public IActionResult Logout(string accessToken)
+        public async Task<IActionResult> Logout(string accessToken)
         {
-            var response = _jwt.ChangeVersionAccessToken(accessToken);
-            return Ok(new
+            var principal = await _jwt.TakeDataTokenAsync(accessToken);
+            var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId != null)
             {
-                success = true,
-                message = response
-            });
+                await _tokenService.RevokeTokenAsync(accessToken); // Xóa token khỏi Redis
+                return Ok(new { success = true, message = "Đăng xuất thành công." });
+            }
+
+            return BadRequest(new { success = false, message = "Token không hợp lệ." });
         }
     }
 }

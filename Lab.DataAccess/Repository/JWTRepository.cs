@@ -1,6 +1,7 @@
 ﻿using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
 using Lab.Models.ViewModels;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -53,7 +54,7 @@ namespace Lab.DataAccess.Repository
                 RefreshToken = refreshToken
             };
         }
-        public ClaimsPrincipal TakeDataToken(string token)
+        public async Task<ClaimsPrincipal> TakeDataTokenAsync(string token)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey);
@@ -64,14 +65,16 @@ namespace Lab.DataAccess.Repository
                 IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
                 ValidateIssuer = false,
                 ValidateAudience = false,
-                ClockSkew = TimeSpan.FromMinutes(5)
+                ClockSkew = TimeSpan.Zero
             };
 
             SecurityToken validatedToken;
             ClaimsPrincipal principal = jwtTokenHandler.ValidateToken(token, tokenValidationParameters, out validatedToken);
 
+
             return principal;
         }
+
         public string GenerateRefreshToken(string idUser)
         {
             var randomNumber = new byte[32];
@@ -138,7 +141,7 @@ namespace Lab.DataAccess.Repository
         public async Task<TokenVM> ChangeVersionAccessToken(string accessToken)
         {
             // Validate the token and extract claims
-            var principal = TakeDataToken(accessToken);
+            var principal = await TakeDataTokenAsync(accessToken);
             var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             // You should now invalidate the current token by adding a version claim or a timestamp claim

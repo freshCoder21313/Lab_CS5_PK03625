@@ -12,7 +12,7 @@ namespace Lab.DataAccess.Repository.IRepository
     public interface IJWTRepository
     {
         TokenVM GenerateToken(tblNhanVien nhanVien);
-        ClaimsPrincipal TakeDataToken(string token);
+        Task<ClaimsPrincipal> TakeDataTokenAsync(string token);
         string GenerateRefreshToken(string idUser);
         Task<TokenVM> RefreshToken(string refreshToken);
         ClaimsPrincipal ValidateRefreshToken(string refreshToken);
