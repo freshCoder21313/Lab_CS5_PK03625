@@ -13,11 +13,13 @@ namespace Lab.DataAccess.Repository
         private readonly ApplicationDbContext _db;
         public INhanVienRepository NhanViens { get; private set; }
         public ISanPhamRepository SanPhams { get; private set; }
+        public IPaymentRepository Payments { get; private set; }
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
             this.NhanViens = new NhanVienRepository(_db);
             this.SanPhams = new SanPhamRepository(_db);
+            this.Payments = new PaymentRepository(_db);
         }
 
         //public async Task SaveAsync()

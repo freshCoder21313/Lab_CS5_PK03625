@@ -13,6 +13,7 @@ namespace LabWeb.Areas.Customer.Controllers
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _baseAddress = "https://localhost:7094/api/manager/sanpham";
+        private readonly string _baseAddressPayment = "https://localhost:7094/api/customer/thanhtoan";
 
         public CartController(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
         {
@@ -88,6 +89,22 @@ namespace LabWeb.Areas.Customer.Controllers
                 Console.WriteLine("Gặp lỗi: " + ex.Message);
                 return StatusCode(500, ex.Message);
             }
+        }
+        public async Task<IActionResult> MakePayment()
+        {
+            ResponseAPI<dynamic> responseAPI = new ResponseAPI<dynamic>();
+            try
+            {
+                List<GioHang> sanPhamVMs = GetCarts();
+
+                responseAPI = await _httpClient.PostToApiAsync<List<GioHang>>(_baseAddressPayment + $"/GetPaymentUrl/", sanPhamVMs, _httpContextAccessor);
+            }
+            catch (Exception ex)
+            {
+                responseAPI.Message = ex.Message;
+                throw;
+            }
+            return Json(responseAPI);
         }
         #region GET API
         public IActionResult GetAll()

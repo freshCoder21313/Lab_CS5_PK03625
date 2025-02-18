@@ -4,6 +4,7 @@ using Lab.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lab.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250218130031_addTblChiTietDonHang")]
+    partial class addTblChiTietDonHang
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace Lab.DataAccess.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Lab.Models.ChiTietDonHang", b =>
+            modelBuilder.Entity("Lab.DataAccess.Repository.ChiTietDonHang", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,11 +33,11 @@ namespace Lab.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("DonGia")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int>("DonHangId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("Gia")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("SanPhamId")
                         .HasColumnType("int");
@@ -68,8 +71,8 @@ namespace Lab.DataAccess.Migrations
                     b.Property<DateTime>("NgayDatHang")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("NguoiDungId")
-                        .HasColumnType("int");
+                    b.Property<string>("NguoiDungId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SoDienThoai")
                         .HasColumnType("nvarchar(max)");
@@ -89,6 +92,33 @@ namespace Lab.DataAccess.Migrations
                     b.HasKey("MaDonHang");
 
                     b.ToTable("DonHangs");
+                });
+
+            modelBuilder.Entity("Lab.Models.GioHang", b =>
+                {
+                    b.Property<int>("MaSanPham")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaSanPham"));
+
+                    b.Property<decimal>("DonGia")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("DonHangMaDonHang")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SoLuong")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TenSanPham")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("MaSanPham");
+
+                    b.HasIndex("DonHangMaDonHang");
+
+                    b.ToTable("GioHang");
                 });
 
             modelBuilder.Entity("Lab.Models.tblNhanVien", b =>
@@ -150,10 +180,10 @@ namespace Lab.DataAccess.Migrations
                     b.ToTable("SanPhams");
                 });
 
-            modelBuilder.Entity("Lab.Models.ChiTietDonHang", b =>
+            modelBuilder.Entity("Lab.DataAccess.Repository.ChiTietDonHang", b =>
                 {
                     b.HasOne("Lab.Models.DonHang", "DonHang")
-                        .WithMany("ChiTietDonHangs")
+                        .WithMany()
                         .HasForeignKey("DonHangId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -167,9 +197,16 @@ namespace Lab.DataAccess.Migrations
                     b.Navigation("SanPham");
                 });
 
+            modelBuilder.Entity("Lab.Models.GioHang", b =>
+                {
+                    b.HasOne("Lab.Models.DonHang", null)
+                        .WithMany("GioHangs")
+                        .HasForeignKey("DonHangMaDonHang");
+                });
+
             modelBuilder.Entity("Lab.Models.DonHang", b =>
                 {
-                    b.Navigation("ChiTietDonHangs");
+                    b.Navigation("GioHangs");
                 });
 #pragma warning restore 612, 618
         }

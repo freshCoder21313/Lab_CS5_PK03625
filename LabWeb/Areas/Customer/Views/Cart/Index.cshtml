@@ -10,11 +10,12 @@
 
 <h1>Danh sách giỏ hàng</h1>
 
-<button type="button" onclick="" class="btn btn-primary">Tạo đơn hàng</button>
+<button type="button" onclick="makePayment()" class="btn btn-primary">Tạo đơn hàng</button>
 
 <table id="tbl1" class="table table-bordered shadow p-4 rounded-1"></table>
 
 @section Scripts {
     <script src="//cdn.datatables.net/2.1.8/js/dataTables.min.js" asp-append-version="true"></script>
     <script src="~/js/areas/customer/cart.js" asp-append-version="true"></script>
+    <script src="~/js/areas/customer/payment.js" asp-append-version="true"></script>
 }
