@@ -1,7 +1,7 @@
-﻿using Lab.API.Services;
-using Lab.DataAccess.Repository.IRepository;
+﻿using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
 using Lab.Models.ViewModels;
+using Lab.Services.Redis;
 using Lab.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -60,7 +60,7 @@ namespace Lab.API.Controllers
             if (userLogin != null)
             {
                 TokenVM tokenVM = _jwt.GenerateToken(userLogin);
-                await _tokenService.StoreTokenAsync(userLogin.MaNhanVien.ToString(), tokenVM.AccessToken, TimeSpan.FromSeconds(30)); //Note: Key
+                await _tokenService.StoreTokenAsync(userLogin.MaNhanVien.ToString(), tokenVM.AccessToken, TimeSpan.FromMinutes(15)); //Note: Key
 
                 return Ok(new
                 {
@@ -167,12 +167,11 @@ namespace Lab.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout(string accessToken)
         {
-            var principal = await _jwt.TakeDataTokenAsync(accessToken);
-            var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (userId != null)
             {
-                await _tokenService.RevokeTokenAsync(accessToken); // Xóa token khỏi Redis
+                await _tokenService.RevokeTokenAsync(userId); // Xóa token khỏi Redis
                 return Ok(new { success = true, message = "Đăng xuất thành công." });
             }
 

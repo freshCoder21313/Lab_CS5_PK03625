@@ -1,4 +1,4 @@
-﻿namespace Lab.API.Services.IServices
+﻿namespace Lab.Services.Redis.IServices
 {
     public interface IRedisCacheService
     {

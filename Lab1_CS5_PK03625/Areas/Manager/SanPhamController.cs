@@ -1,9 +1,9 @@
-﻿using Lab.API.Services.IServices;
-using Lab.DataAccess.Repository.IRepository;
+﻿using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
 using Lab.Models.DTOs.NhanVien;
 using Lab.Models.DTOs.SanPham;
 using Lab.Models.ViewModels;
+using Lab.Services.Redis.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +11,8 @@ using Microsoft.Build.Execution;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 
@@ -37,9 +39,11 @@ namespace Lab.API.Areas.Manager
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<tblSanPham>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<IActionResult> GetAll()
         {
-            var userId = Request.Headers["UserId"];
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0";
 
             var cachingKey = $"products_{userId}";
 

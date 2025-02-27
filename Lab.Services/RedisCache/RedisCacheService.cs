@@ -1,8 +1,8 @@
-﻿using Lab.API.Services.IServices;
+﻿using Lab.Services.Redis.IServices;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 
-namespace Lab.API.Services
+namespace Lab.Services.Redis
 {
     public class RedisCacheService : IRedisCacheService
     {
@@ -16,7 +16,7 @@ namespace Lab.API.Services
             var data = _cache?.GetString(key);
             if (data is null)
             {
-                return default(T);
+                return default;
             }
             return JsonSerializer.Deserialize<T>(data);
         }

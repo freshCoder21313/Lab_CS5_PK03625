@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lab.API.Services
+namespace Lab.Services.Redis
 {
     public class TokenService
     {
@@ -42,10 +42,11 @@ namespace Lab.API.Services
 
         public async Task RevokeTokenAsync(string userId)
         {
-            await _cache.SetStringAsync($"user_{userId}", "revoked", new DistributedCacheEntryOptions
+            await _cache.RemoveAsync($"user_{userId}");
+            /*await _cache.SetStringAsync($"user_{userId}", "revoked", new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1), // Thời gian hết hạn để revoked
-            });
+            });*/
         }
     }
 }

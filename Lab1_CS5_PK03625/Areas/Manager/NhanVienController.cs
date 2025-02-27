@@ -2,6 +2,7 @@
 using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
 using Lab.Models.DTOs.NhanVien;
+using Lab.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,7 @@ namespace Lab.API.Areas.Manager
     [Area("Manager")]
     [Route("api/[area]/[controller]/[action]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = SD.RoleAdmin)]
     public class NhanVienController : ControllerBase
     {
         private readonly AppSetting _appSetting;

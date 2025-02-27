@@ -37,7 +37,7 @@
                                 <a class="dropdown-item nav-link text-dark" asp-area="Manager" asp-controller="Lab2" asp-action="Index">Lab2</a>
                                 <a class="dropdown-item" href="#">Something else here</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">Separated link</a>
+                                <a class="dropdown-item" asp-area="Manager" asp-controller="Lab2" asp-action="Index">Lab 7</a>
                             </div>
                         </li>
                         <li class="nav-item">
@@ -69,7 +69,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/areas/customer/clientCart.js" asp-append-version="true"></script>
+    @* <script src="~/js/areas/customer/clientCart.js" asp-append-version="true"></script> *@
 
     @await RenderSectionAsync("Scripts", required: false)
     <partial name="_Notification.cshtml" />

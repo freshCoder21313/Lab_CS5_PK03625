@@ -29,4 +29,8 @@
     <ProjectReference Include="..\Lab.Utility\Lab.Utility.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\" />
+  </ItemGroup>
+
 </Project>

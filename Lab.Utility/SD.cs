@@ -6,6 +6,9 @@
         public const string AccessToken = "AccessToken";
         public const string NotifyLayout = "NotifyLayout";
 
+        public const string RoleAdmin = "Admin";
+        public const string RoleCustomer = "Customer";
+
         public const string CartSession = "CartSession";
 
 

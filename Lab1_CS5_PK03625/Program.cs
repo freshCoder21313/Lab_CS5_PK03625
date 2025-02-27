@@ -1,11 +1,16 @@
 ﻿using Lab.API.Middleware;
-using Lab.API.Services;
-using Lab.API.Services.IServices;
 using Lab.DataAccess.Data;
 using Lab.DataAccess.DbInitializer;
 using Lab.DataAccess.Repository;
 using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
+using Lab.Services.AI.HuggingFace;
+using Lab.Services.Redis;
+using Lab.Services.Redis.IServices;
+
+
+
+
 //using Lab.Services.VnPay;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -37,8 +42,10 @@ namespace Lab.API
                 });
             });
 
+            // Add AI
+            builder.Services.AddHttpClient<HuggingFaceService>();
+
             // Add Redis
-            //builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(builder.Configuration.GetSection("Redis:Configuration").Value));
             builder.Services.AddScoped<TokenService>();
             builder.Services.AddScoped<JWTRepository>();
 
@@ -92,6 +99,7 @@ namespace Lab.API
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
             builder.Services.AddScoped<IJWTRepository, JWTRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IThongKeRepository, ThongKeRepository>();
             builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
             //builder.Services.AddScoped<IVnPayService, VnPayService>();
 
@@ -128,10 +136,10 @@ namespace Lab.API
                             context.Response.Headers.Add("Token-Expired", "true");
                             context.Response.StatusCode = 401;
                             context.Response.ContentType = "application/json";
-                            var result = JsonSerializer.Serialize(new
+                            var result = JsonSerializer.Serialize(new ResponseAPI<dynamic>
                             {
-                                status = 401,
-                                message = "Mã token đã hết hạn"
+                                Status = 401,
+                                Message = "Mã token đã hết hạn"
                             });
                             return context.Response.WriteAsync(result);
                         }
@@ -143,10 +151,10 @@ namespace Lab.API
                         context.HandleResponse();
                         context.Response.StatusCode = 401;
                         context.Response.ContentType = "application/json";
-                        var result = JsonSerializer.Serialize(new
+                        var result = JsonSerializer.Serialize(new ResponseAPI<dynamic>
                         {
-                            status = 401,
-                            message = "Bạn chưa đăng nhập"
+                            Status = 401,
+                            Message = "Bạn chưa đăng nhập"
                         });
                         return context.Response.WriteAsync(result);
                     }
@@ -173,10 +181,12 @@ namespace Lab.API
             app.UseHttpsRedirection();
 
             app.UseCors("MyPolicy");
-            app.UseMiddleware<TokenValidationMiddleware>();
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+
+            app.UseMiddleware<TokenValidationMiddleware>();
 
             SeedDatabaes(); //Func tạo CSDL nếu chưa có
 

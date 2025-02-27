@@ -1,0 +1,18 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section CSSs {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+}
+
+<h1>Top 10 Sản Phẩm</h1>
+<canvas id="productsChart" width="800" height="400"></canvas>
+
+@section Scripts {
+    
+    <script src="~/js/areas/manager/lab7.js" asp-append-version="true"></script>
+}
