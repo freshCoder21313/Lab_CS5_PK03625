@@ -10,7 +10,8 @@ namespace Lab.DataAccess.Data
 
         public DbSet<NguoiDungUngDung> NguoiDungUngDungs { get; set; }
         public DbSet<tblSanPham> SanPhams { get; set; }
-
+        public DbSet<DonHang> DonHangs { get; set; }
+        //public DbSet<GioHang> GioHangs { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -1,0 +1,32 @@
+﻿@model Dictionary<string, string>
+
+@{
+    ViewData["Title"] = "PaymentCallBack";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center">Đã thanh toán</h1>
+
+<h2>Dữ liệu VNPAY</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Khóa</th>
+            <th>Giá trị</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Key</td>
+                <td>@item.Value</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts{
+    <script asp-append-version="true"></script>
+}

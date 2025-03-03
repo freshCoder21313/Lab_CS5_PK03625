@@ -18,6 +18,7 @@ namespace Lab.DataAccess.Repository
         private readonly ApplicationDbContext _db;
         public INguoiDungUngDungRepository NguoiDungs { get; private set; }
         public ISanPhamRepository SanPhams { get; private set; }
+        public IPaymentRepository Payments { get; private set; }
         public UnitOfWork(ApplicationDbContext db, JWTRepository jwt, IConfiguration configuration)
         {
             _db = db;
@@ -25,6 +26,7 @@ namespace Lab.DataAccess.Repository
             _configuration = configuration;
             this.NguoiDungs = new NguoiDungUngDungRepository(_db, _jwt);
             this.SanPhams = new SanPhamRepository(_db);
+            this.Payments = new PaymentRepository(_db);
         }
 
         //public async Task SaveAsync()
