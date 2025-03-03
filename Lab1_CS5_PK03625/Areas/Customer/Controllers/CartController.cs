@@ -35,7 +35,13 @@ namespace Lab.API.Areas.Customer.Controllers
             try
             {
                 var responseSanPhamVM = await _unit.SanPhams.GetAsyncVM(x => x.MaSanPham == productId);
-                response.Data = new GioHang { MaSanPham = productId.Value, DonGia = responseSanPhamVM.Data.DonGia, SoLuong = quantity.GetValueOrDefault(1), TenSanPham = responseSanPhamVM.Data.TenSanPham};
+                response.Data = new GioHang
+                {
+                    MaSanPham = productId!.Value,
+                    DonGia = responseSanPhamVM.Data?.DonGia ?? 1m,
+                    SoLuong = quantity.GetValueOrDefault(1),
+                    TenSanPham = responseSanPhamVM.Data?.TenSanPham ?? "No name"
+                };
             }
             catch (Exception ex)
             {

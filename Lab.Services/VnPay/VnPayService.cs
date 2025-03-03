@@ -80,7 +80,7 @@ namespace Lab.Services.VnPay
                 OrderDescription = vnp_OrderInfo,
                 OrderId = vnp_orderId.ToString(),
                 TransactionId = vnp_TransactionId.ToString(),
-                Token = vnp_SecureHash,
+                Token = vnp_SecureHash!,
                 VnPayResponseCode = vnp_ResponseCode
             };
         }

@@ -98,7 +98,7 @@ namespace LabWeb.Areas.Customer.Controllers
             {
                 List<GioHang> sanPhamVMs = GetCarts();
 
-                responseAPI = await _httpClient.PostToApiAsync<List<GioHang>>(_baseAddressPayment + $"/GetPaymentUrl/", sanPhamVMs, _httpContextAccessor);
+                responseAPI = await _httpClient.PostToApiAsync<List<GioHang>>(_baseAddressPayment + $"/GetPaymentUrl/", sanPhamVMs, _httpContextAccessor) ?? new();
             }
             catch (Exception ex)
             {

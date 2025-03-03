@@ -69,6 +69,7 @@ namespace Lab.API.Areas.Customer
                 // Đặt thông điệp lỗi cụ thể hơn cho người dùng
                 response.Success = false;
                 response.Message = "Đã xảy ra lỗi trong quá trình thêm sản phẩm vào giỏ hàng.";
+                Console.WriteLine(ex.Message);
             }
             return Ok(response);
         }
