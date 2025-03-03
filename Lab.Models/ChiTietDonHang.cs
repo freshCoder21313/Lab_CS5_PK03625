@@ -17,6 +17,7 @@ namespace Lab.Models
         public int DonHangId { get; set; }
         public int? SanPhamId { get; set; }
         public int SoLuong { get; set; }
+        [Column(TypeName = "decimal(18, 4)")]
         public decimal DonGia { get; set; }
 
         [ValidateNever]
