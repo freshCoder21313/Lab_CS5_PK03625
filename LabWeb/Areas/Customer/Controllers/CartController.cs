@@ -3,6 +3,7 @@ using Lab.Models.DTOs.SanPham;
 using Lab.Models.ViewModels;
 using Lab.Utility;
 using Lab.Utility.Extensions;
+using Lab.Utility.SharedData;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LabWeb.Areas.Customer.Controllers
@@ -116,11 +117,11 @@ namespace LabWeb.Areas.Customer.Controllers
         [NonAction]
         private List<GioHang> GetCarts()
         {
-            return HttpContext.Session.GetComplexData<List<GioHang>>(SD.CartSession) ?? new List<GioHang>();
+            return HttpContext.Session.GetComplexData<List<GioHang>>(ConstantsValue.CartSession) ?? new List<GioHang>();
         }
         private void SetCarts(List<GioHang> carts)
         {
-            HttpContext.Session.SetComplexData(SD.CartSession, carts);
+            HttpContext.Session.SetComplexData(ConstantsValue.CartSession, carts);
         }
         #endregion
     }

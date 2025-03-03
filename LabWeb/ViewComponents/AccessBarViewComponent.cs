@@ -11,7 +11,7 @@ namespace LabWeb.ViewComponents
         }
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            bool isLogin = HttpContext.Session.Get(Constants.AccessToken) != null;
+            bool isLogin = HttpContext.Session.Get(ConstantsValue.AccessToken) != null;
             return View("Default", isLogin);
         }
     }
