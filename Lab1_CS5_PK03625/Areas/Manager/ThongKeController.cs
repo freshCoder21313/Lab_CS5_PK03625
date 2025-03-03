@@ -10,7 +10,7 @@ namespace Lab.API.Areas.Manager
     [Area("Manager")]
     [Route("api/[area]/[controller]/[action]")]
     [ApiController]
-    //[Authorize(Roles = SD.RoleAdmin)]
+    //[Authorize(Roles = Constants.RoleAdmin)]
     public class ThongKeController : ControllerBase
     {
         private readonly IThongKeRepository _thongke;

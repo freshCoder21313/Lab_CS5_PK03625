@@ -1,9 +1,10 @@
-﻿@{
+﻿@using Lab.Utility.SharedData
+@{
     Layout = null;
 }
-@if (TempData[SD.NotifyLayout] != null)
+@if (TempData[ConstantsValue.NotifyLayout] != null)
 {
     <script>
-        toastr.info(`${@TempData[SD.NotifyLayout]}`);
+        toastr.info(`${@TempData[ConstantsValue.NotifyLayout]}`);
     </script>
 }

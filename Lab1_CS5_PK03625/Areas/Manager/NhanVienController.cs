@@ -2,7 +2,7 @@
 using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
 using Lab.Models.DTOs.NhanVien;
-using Lab.Utility;
+using Lab.Utility.SharedData;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +15,7 @@ namespace Lab.API.Areas.Manager
     [Area("Manager")]
     [Route("api/[area]/[controller]/[action]")]
     [ApiController]
-    [Authorize(Roles = SD.RoleAdmin)]
+    [Authorize(Roles = ConstantsValue.RoleAdmin)]
     public class NhanVienController : ControllerBase
     {
         private readonly AppSetting _appSetting;
@@ -34,11 +34,11 @@ namespace Lab.API.Areas.Manager
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var nhanViens = await _unit.NhanViens.GetAllAsync();
-            return Ok(new ResponseAPI<List<tblNhanVien>>
+            var NguoiDungs = await _unit.NguoiDungs.GetAllAsync();
+            return Ok(new ResponseAPI<List<NguoiDungUngDung>>
             {
                 Success = true,
-                Data = nhanViens.ToList()
+                Data = NguoiDungs.ToList()
             });
         }
         /// <summary> 
@@ -48,15 +48,15 @@ namespace Lab.API.Areas.Manager
         /// <returns>Thông tin người dùng.</returns>
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get(string id)
         {
-            var nhanVien = await _unit.NhanViens.GetAsync(x => x.MaNhanVien == id);
+            var nhanVien = await _unit.NguoiDungs.GetAsync(x => x.Id == id);
             if (nhanVien == null)
             {
                 return NotFound(new { Message = "Không tìm thấy nhân viên." });
             }
 
-            return Ok(new ResponseAPI<tblNhanVien>
+            return Ok(new ResponseAPI<NguoiDungUngDung>
             {
                 Success = true,
                 Data = nhanVien
@@ -77,7 +77,7 @@ namespace Lab.API.Areas.Manager
 
             try
             {
-                var response = await _unit.NhanViens.AddAsyncByDTO(nhanVien);
+                var response = await _unit.NguoiDungs.AddAsyncByDTO(nhanVien);
 
                 if (response.Success.HasValue && response.Success.Value) //Ok
                 {
@@ -107,12 +107,12 @@ namespace Lab.API.Areas.Manager
                     return BadRequest(new { Success = false, Message = "Dữ liệu không hợp lệ." });
                 }
 
-                await _unit.NhanViens.Update(nhanVien);
+                await _unit.NguoiDungs.Update(nhanVien);
 
                 return Ok(new ResponseAPI<dynamic>
                 {
                     Success = true,
-                    Message = $"Đã thay đổi dữ liệu nhân viên mang mã: {nhanVien.MaNhanVien}"
+                    Message = $"Đã thay đổi dữ liệu nhân viên mang mã: {nhanVien.Id}"
                 });
             }
             catch (Exception ex)
@@ -128,20 +128,20 @@ namespace Lab.API.Areas.Manager
         /// <param name="id">ID của người dùng.</param>
         /// <returns>Xóa dữ liệu dữ liệu 1 đối tượng theo id</returns>
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(string? id)
         {
             if (id == null)
             {
                 return BadRequest(new { Message = "ID không hợp lệ." });
             }
 
-            var infoGoc = await _unit.NhanViens.GetAsync(x => x.MaNhanVien == id);
+            var infoGoc = await _unit.NguoiDungs.GetAsync(x => x.Id == id);
             if (infoGoc == null)
             {
                 return NotFound(new { Message = "Không tìm thấy dữ liệu muốn xóa." });
             }
 
-            _unit.NhanViens.Remove(infoGoc);
+            _unit.NguoiDungs.Remove(infoGoc);
 
             return Ok(new ResponseAPI<dynamic>
             {

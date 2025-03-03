@@ -1,16 +1,13 @@
-﻿namespace Lab.Utility
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Lab.Utility.SharedData
 {
-    public static class SD
+    public static class PaymentStatus
     {
-        public const string RefreshToken = "RefreshToken";
-        public const string AccessToken = "AccessToken";
-        public const string NotifyLayout = "NotifyLayout";
-
-        public const string RoleAdmin = "Admin";
-        public const string RoleCustomer = "Customer";
-
-        public const string CartSession = "CartSession";
-
 
         //Tình trạng đơn hàng
         public const string StatusPending = "Pending";
@@ -20,7 +17,7 @@
         public const string StatusCancelled = "Cancelled";
         public const string StatusRefunded = "Refunded";
 
-        public static readonly Dictionary<string, string> OrderStatusDictionary = new Dictionary<string, string>
+        public static readonly Dictionary<string, string> OrderStatuConstantsictionary = new Dictionary<string, string>
         {
             { "Pending", "Đang chờ xử lý" },
             { "Approved", "Đã duyệt" },
@@ -33,7 +30,7 @@
         //Tình trạng thanh toán
         public const string PaymentStatusPending = "Pending";
         public const string PaymentStatusApproved = "Approved";
-        public const string PaymentStatusDelayedPayment = "ApprovedForDelayedPayment";
+        public const string PaymentStatuConstantselayedPayment = "ApprovedForDelayedPayment";
         public const string PaymentStatusRejected = "Rejected";
     }
 }

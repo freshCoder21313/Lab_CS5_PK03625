@@ -13,7 +13,7 @@ function loadDatatable() {
     const maxPrice = parseInt(document.getElementById("maxPrice").value) || 1000000000; // Default to a large value
 
     // If a DataTable already exists, destroy it before creating a new one
-    if ($.fn.DataTable.isDataTable('#tbl1')) {
+    if ($.fn.DataTable.iConstantsataTable('#tbl1')) {
         $('#tbl1').DataTable().clear().destroy();
     }
 
@@ -123,7 +123,7 @@ function actionUpsertProduct(event) {
         url: `/Manager/Lab2/Upsert/`, // URL API
         data: formData, // Dữ liệu form
         method: 'POST', // Phương thức HTTP
-        processData: false, // Không xử lý dữ liệu form
+        procesConstantsata: false, // Không xử lý dữ liệu form
         contentType: false, // Để content-type mặc định của FormData
         success: (response) => {
 

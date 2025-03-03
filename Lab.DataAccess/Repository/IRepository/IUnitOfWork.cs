@@ -8,7 +8,7 @@ namespace Lab.DataAccess.Repository.IRepository
 {
     public interface IUnitOfWork
     {
-        INhanVienRepository NhanViens { get; }
+        INguoiDungUngDungRepository NguoiDungs { get; }
         ISanPhamRepository SanPhams { get; }
         //Task SaveAsync();
     }

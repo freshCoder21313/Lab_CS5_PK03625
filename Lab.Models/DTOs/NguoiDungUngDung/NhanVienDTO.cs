@@ -10,7 +10,7 @@ namespace Lab.Models.DTOs.NhanVien
         [DisplayName("Mã nhân viên")]
         [Required(ErrorMessage = ValidationConstants.InvalidPositiveIntegerMessage)]
         [RegularExpression(ValidationConstants.ValidatePositiveInteger, ErrorMessage = ValidationConstants.InvalidPositiveIntegerMessage)]
-        public int? MaNhanVien { get; set; } = 0;
+        public int? Id { get; set; } = 0;
 
         [DisplayName("Họ tên nhân viên")]
         [RegularExpression(ValidationConstants.ValidateStringName, ErrorMessage = ValidationConstants.InvalidStringNameMessage)]

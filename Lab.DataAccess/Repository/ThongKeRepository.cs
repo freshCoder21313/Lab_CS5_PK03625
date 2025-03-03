@@ -17,7 +17,7 @@ namespace Lab.DataAccess.Repository
         private readonly string _connectionString;
         public ThongKeRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("ConnectString");
+            _connectionString = configuration.GetConnectionString("ConnectString")!;
         }
 
         public async Task<ResponseAPI<List<tblSanPham>?>> GetAllSanPhamAsync()
@@ -50,9 +50,9 @@ namespace Lab.DataAccess.Repository
             return response;
         }
 
-        public async Task<ResponseAPI<tblSanPham?>> GetSanPhamByIdAsync(int id)
+        public async Task<ResponseAPI<tblSanPham>?> GetSanPhamByIdAsync(int id)
         {
-            ResponseAPI<tblSanPham?> response = new ResponseAPI<tblSanPham?>();
+            ResponseAPI<tblSanPham>? response = new ResponseAPI<tblSanPham>();
             try
             {
                 using (var connection = new SqlConnection(_connectionString))

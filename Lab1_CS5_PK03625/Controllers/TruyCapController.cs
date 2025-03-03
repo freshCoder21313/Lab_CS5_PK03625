@@ -55,12 +55,12 @@ namespace Lab.API.Controllers
                 });
             }
 
-            var userLogin = await _unit.NhanViens.GetAsync(x => x.TenDangNhap == dangNhap.UserName && x.MatKhau == dangNhap.Password);
+            var userLogin = await _unit.NguoiDungs.GetAsync(x => x.UserName == dangNhap.UserName);
 
             if (userLogin != null)
             {
                 TokenVM tokenVM = _jwt.GenerateToken(userLogin);
-                await _tokenService.StoreTokenAsync(userLogin.MaNhanVien.ToString(), tokenVM.AccessToken, TimeSpan.FromMinutes(15)); //Note: Key
+                await _tokenService.StoreTokenAsync(userLogin.Id.ToString(), tokenVM.AccessToken, TimeSpan.FromMinutes(15)); //Note: Key
 
                 return Ok(new
                 {
@@ -83,7 +83,7 @@ namespace Lab.API.Controllers
         /// <returns>Xem dữ liệu được lưu trong claims sau khi đăng nhập với tài khoản nhân viên</returns>
         [Authorize]
         [HttpGet("ValidateToken/{token}")]
-        public async Task<IActionResult> ValidateToken(string token)
+        public IActionResult ValidateToken(string token)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
@@ -96,7 +96,7 @@ namespace Lab.API.Controllers
 
             try
             {
-                var principal = await _jwt.TakeDataTokenAsync(token);
+                var principal = _jwt.TakeDataTokenAsync(token);
                 return Ok(new
                 {
                     success = true,
@@ -135,7 +135,7 @@ namespace Lab.API.Controllers
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 // Kiểm tra xem refresh token có hợp lệ không và lấy thông tin người dùng
-                var user = await _unit.NhanViens.GetAsync(u => u.MaNhanVien.ToString() == userId);
+                var user = await _unit.NguoiDungs.GetAsync(u => u.Id.ToString() == userId);
                 if (user == null)
                 {
                     return Unauthorized(new

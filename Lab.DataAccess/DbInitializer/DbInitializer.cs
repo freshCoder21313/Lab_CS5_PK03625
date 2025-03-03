@@ -1,5 +1,7 @@
 ﻿using Lab.DataAccess.Data;
 using Lab.Models;
+using Lab.Utility.SharedData;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,9 +13,14 @@ namespace Lab.DataAccess.DbInitializer
 {
     public class DbInitializer : IDbInitializer
     {
+        private readonly UserManager<NguoiDungUngDung> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _db;
-        public DbInitializer(ApplicationDbContext db)
+
+        public DbInitializer(UserManager<NguoiDungUngDung> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext db)
         {
+            _roleManager = roleManager;
+            _userManager = userManager;
             _db = db;
         }
 
@@ -24,10 +31,7 @@ namespace Lab.DataAccess.DbInitializer
                 if (_db.Database.GetPendingMigrations().Count() > 0)
                 {
                     _db.Database.Migrate();
-                }
-                if (_db.NhanViens.Count() == 0)
-                {
-                    InitNhanVien_Lab2();
+                    CreateRolesAndAdminUser();
                 }
                 if (_db.SanPhams.Count() == 0)
                 {
@@ -40,25 +44,60 @@ namespace Lab.DataAccess.DbInitializer
             }
         }
 
-        public void InitNhanVien_Lab2()
+        private void CreateRolesAndAdminUser()
         {
-            var objs = new List<tblNhanVien>();
-            Random rd = new Random();
-            for (int i = 0; i < 10; i++)
+            if (!_roleManager.RoleExistsAsync(ConstantsValue.RoleCustomer).GetAwaiter().GetResult())
             {
-                tblNhanVien blankObject = new tblNhanVien
+                _roleManager.CreateAsync(new IdentityRole(ConstantsValue.RoleCustomer)).GetAwaiter().GetResult();
+                //_roleManager.CreateAsync(new IdentityRole(Constants.RoleStaff)).GetAwaiter().GetResult();
+                _roleManager.CreateAsync(new IdentityRole(ConstantsValue.RoleAdmin)).GetAwaiter().GetResult();
+
+                _userManager.CreateAsync(new NguoiDungUngDung
                 {
-                    HoTen = RandomData_DB.Instance.rdName(),
-                    SoDienThoai = RandomData_DB.Instance.RandomPhone(),
-                    NgaySinh = (RandomData_DB.Instance.RandomBirthDate()),
-                    TenDangNhap = $"noname{i}",
-                    MatKhau = $"nopass{i}",
-                    VaiTro = new string[] { "User", "Admin"}[rd.NextDouble() > 0.5 ? 0 : 1]
-                };
-                objs.Add(blankObject);
+                    UserName = "admin@dotnetmastery.com",
+                    Email = "admin@dotnetmastery.com",
+                    HoTen = "Bhrugen Patel",
+                    GioiTinh = true,
+                    PhoneNumber = "1112223333",
+                    DiaChi = "test 123 Ave",
+                    LinkAnh = "https://i.pinimg.com/control/564x/6a/9c/77/6a9c77e0b1c7e5571ea5b5a350af0248.jpg",
+                }, "Admin123*@").GetAwaiter().GetResult();
+
+                var user = _db.NguoiDungUngDungs.FirstOrDefault(u => u.Email == "admin@dotnetmastery.com");
+                _userManager.AddToRoleAsync(user, ConstantsValue.RoleAdmin).GetAwaiter().GetResult();
+
+
+                //SeedUsers();
+                //SeedProductCategories();
+                //SeedProducts();
+                //SeedCombos();
+                //SeedComboDetails();
+                //SeedProductImages();
+                //SeedProductVideos();
+                //SeedOrders();
+                //SeedFavorites();
+                //SeedComments();
+                //SeedOrderDetails();
             }
-            _db.NhanViens.AddRange(objs);
-            _db.SaveChanges();
+
+            if (!_db.NguoiDungUngDungs.Any(x => x.Email == "customer66@gmail.com"))
+            {
+                _userManager.CreateAsync(new NguoiDungUngDung
+                {
+                    UserName = "customer66@gmail.com",
+                    Email = "customer66@gmail.com",
+                    HoTen = "Bhrugen Patel",
+                    GioiTinh = true,
+                    PhoneNumber = "1112223333",
+                    DiaChi = "test 123 Ave",
+                    LinkAnh = "https://i.pinimg.com/control/564x/6a/9c/77/6a9c77e0b1c7e5571ea5b5a350af0248.jpg",
+                }, "Admin123*@").GetAwaiter().GetResult();
+
+                var user = _db.NguoiDungUngDungs.FirstOrDefault(u => u.Email == "email@gmail.com");
+                _userManager.AddToRoleAsync(user, ConstantsValue.RoleCustomer).GetAwaiter().GetResult();
+
+                _db.SaveChanges();
+            }
         }
         public void InitSanPham_Lab2()
         {

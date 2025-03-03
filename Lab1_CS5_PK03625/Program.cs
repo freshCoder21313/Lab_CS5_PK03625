@@ -14,6 +14,7 @@ using Lab.Services.Redis.IServices;
 //using Lab.Services.VnPay;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -30,6 +31,7 @@ namespace Lab.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
 
 
             builder.Services.AddCors(options =>
@@ -53,6 +55,10 @@ namespace Lab.API
             builder.Services.AddControllers();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectString")));
+                
+            builder.Services.AddIdentity<NguoiDungUngDung, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -106,7 +112,7 @@ namespace Lab.API
             #region //Cấu hình mã Secret và Authentication
             builder.Services.Configure<AppSetting>(builder.Configuration.GetSection("AppSettings"));
             var secretKey = builder.Configuration["AppSettings:SecretKey"];
-            var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
+            var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey!);
 
 
             builder.Services.AddAuthentication(options =>
@@ -133,7 +139,7 @@ namespace Lab.API
                     {
                         if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
                         {
-                            context.Response.Headers.Add("Token-Expired", "true");
+                            context.Response.Headers.Append("Token-Expired", "true");
                             context.Response.StatusCode = 401;
                             context.Response.ContentType = "application/json";
                             var result = JsonSerializer.Serialize(new ResponseAPI<dynamic>
@@ -188,13 +194,13 @@ namespace Lab.API
 
             app.UseMiddleware<TokenValidationMiddleware>();
 
-            SeedDatabaes(); //Func tạo CSDL nếu chưa có
+            SeedDatabaes(); //Func tạo CConstantsL nếu chưa có
 
             app.MapControllers();
 
             app.Run();
 
-            #region Func tạo CSDL 
+            #region Func tạo CConstantsL 
             void SeedDatabaes()
             {
                 using (var seedScope = app.Services.CreateScope())
@@ -206,7 +212,7 @@ namespace Lab.API
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Error!");
+                        Console.WriteLine("Error: " + ex.Message);
                     }
                 }
             }

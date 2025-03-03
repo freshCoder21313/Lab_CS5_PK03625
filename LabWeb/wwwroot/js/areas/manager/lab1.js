@@ -25,7 +25,7 @@
 
         $.ajax({
             url: '/Manager/Lab1/Get',
-            data: { id: rowData.maNhanVien },
+            data: { id: rowData.Id },
             dataType: 'json',
             success: function (json) {
                 if (json && json.success && json.data) {
@@ -35,7 +35,7 @@
                 <div class="container">
                     <div class="row">
                         <p>
-                            Thông tin chi tiết của nhân viên: <strong>${json.data.hoTen} [ID: ${json.data.maNhanVien}] </strong>
+                            Thông tin chi tiết của nhân viên: <strong>${json.data.hoTen} [ID: ${json.data.Id}] </strong>
                         <p>
                     </div>
                     <div class="row">
@@ -83,7 +83,7 @@ function loadDatatable() {
         columns: [
             defaultTdToShowDetail,
             {
-                data: 'maNhanVien',
+                data: 'Id',
                 width: "15%",
                 title: "ID"
             },
@@ -106,7 +106,7 @@ function loadDatatable() {
                 }
             },
             {
-                data: 'maNhanVien',
+                data: 'Id',
                 width: "20%",
                 title: "Hành động",
                 render: function (data) {

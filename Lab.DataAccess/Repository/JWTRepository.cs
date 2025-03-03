@@ -1,6 +1,8 @@
-﻿using Lab.DataAccess.Repository.IRepository;
+﻿using Lab.DataAccess.Data;
+using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
 using Lab.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -18,14 +20,14 @@ namespace Lab.DataAccess.Repository
     public class JWTRepository : IJWTRepository
     {
         private readonly AppSetting _appSetting;
-        private readonly IUnitOfWork _unit;
+        private readonly ApplicationDbContext _db;
 
-        public JWTRepository(IOptionsMonitor<AppSetting> optionsMonitor, IUnitOfWork unit)
+        public JWTRepository(IOptionsMonitor<AppSetting> optionsMonitor, ApplicationDbContext db)
         {
             _appSetting = optionsMonitor.CurrentValue;
-            _unit = unit;
+            _db = db;
         }
-        public TokenVM GenerateToken(tblNhanVien nhanVien) // Hàm tạo mã Token từ tài khoản đăng nhập thành công
+        public TokenVM GenerateToken(NguoiDungUngDung nguoiDung) // Hàm tạo mã Token từ tài khoản đăng nhập thành công
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
 
@@ -35,10 +37,13 @@ namespace Lab.DataAccess.Repository
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, nhanVien.MaNhanVien.ToString()),
-                    new Claim(ClaimTypes.Name, nhanVien.TenDangNhap),
-                    new Claim(ClaimTypes.Role, nhanVien.VaiTro),
-                    new Claim(ClaimTypes.Version, "1")
+                    new Claim(ClaimTypes.Email, nguoiDung.Email ?? ""),
+                    new Claim(ClaimTypes.NameIdentifier, nguoiDung.Id.ToString()),
+                    new Claim(ClaimTypes.Name, nguoiDung.HoTen ?? "No Name"),
+                    new Claim(ClaimTypes.Role, nguoiDung.VaiTro),
+                    new Claim(ClaimTypes.Version, "1"),
+                    //new(JwtRegisteredClaimNames.Aud, _configuration.GetSection("JWTSetting").GetSection("ValidAudience").Value!),
+                    //new(JwtRegisteredClaimNames.Iss, _configuration.GetSection("JWTSetting").GetSection("ValidIssuer").Value!)
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(10), // Dùng 5 phút
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes), SecurityAlgorithms.HmacSha256Signature)
@@ -46,7 +51,7 @@ namespace Lab.DataAccess.Repository
 
             var token = jwtTokenHandler.CreateToken(tokenDescription);
 
-            var refreshToken = GenerateRefreshToken(nhanVien.MaNhanVien.ToString());
+            var refreshToken = GenerateRefreshToken(nguoiDung.Id);
 
             return new TokenVM
             {
@@ -54,7 +59,7 @@ namespace Lab.DataAccess.Repository
                 RefreshToken = refreshToken
             };
         }
-        public async Task<ClaimsPrincipal> TakeDataTokenAsync(string token)
+        public ClaimsPrincipal TakeDataTokenAsync(string token)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey);
@@ -109,15 +114,16 @@ namespace Lab.DataAccess.Repository
             }
 
             var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var nhanVien = await _unit.NhanViens.GetAsync(u => u.MaNhanVien.ToString() == userId);
+            
+            var nguoiDung = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
-            if (nhanVien == null)
+            if (nguoiDung == null)
             {
                 throw new SecurityTokenException("Invalid user");
             }
 
             // Tạo mới access token và refresh token
-            return GenerateToken(nhanVien);
+            return GenerateToken(nguoiDung);
         }
         public ClaimsPrincipal ValidateRefreshToken(string refreshToken)
         {
@@ -141,23 +147,23 @@ namespace Lab.DataAccess.Repository
         public async Task<TokenVM> ChangeVersionAccessToken(string accessToken)
         {
             // Validate the token and extract claims
-            var principal = await TakeDataTokenAsync(accessToken);
+            var principal = TakeDataTokenAsync(accessToken);
             var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             // You should now invalidate the current token by adding a version claim or a timestamp claim
-            var nhanVien = await _unit.NhanViens.GetAsync(u => u.MaNhanVien.ToString() == userId);
+            var nguoiDung = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
-            if (nhanVien == null)
+            if (nguoiDung == null)
             {
                 throw new SecurityTokenException("Invalid user");
             }
 
             // Here you may want to increment a version number (or any strategy you wish to implement)
-            var currentVersion = principal.FindFirst("Version")?.Value;
+            var currentVersion = principal.FindFirst("Version")?.Value ?? "1";
             var newVersion = (int.Parse(currentVersion) + 1).ToString();
 
             // Generate a new token with the updated version claim
-            var newToken = GenerateToken(nhanVien);
+            var newToken = GenerateToken(nguoiDung);
             newToken.AccessToken = newToken.AccessToken.Replace(currentVersion, newVersion); // This is not a valid way to update JWT, just illustrative.
 
             return newToken;

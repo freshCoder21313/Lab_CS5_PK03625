@@ -106,7 +106,7 @@ namespace LabWeb.Areas.Manager.Controllers
                 }
 
                 // Kiểm tra trường hợp tạo mới
-                if (nhanVienDTO?.MaNhanVien == 0)
+                if (nhanVienDTO?.Id == 0)
                 {
                     var responseActionPost = await _httpClient.PostToApiAsync<NhanVienDTO>(
                         _httpClient.BaseAddress + "/post", nhanVienDTO, _httpContextAccessor

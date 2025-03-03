@@ -8,6 +8,7 @@ using Lab.Models;
 using Lab.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
+using Lab.Utility.SharedData;
 
 namespace Lab.Utility.Extensions
 {
@@ -72,8 +73,8 @@ namespace Lab.Utility.Extensions
 
         private static async Task<string?> RefreshAccessToken(IHttpContextAccessor httpContextAccessor)
         {
-            var accessToken = httpContextAccessor.HttpContext?.Session.GetString(SD.AccessToken);
-            var refreshToken = httpContextAccessor.HttpContext?.Session.GetString(SD.RefreshToken);
+            var accessToken = httpContextAccessor.HttpContext?.Session.GetString(ConstantsValue.AccessToken);
+            var refreshToken = httpContextAccessor.HttpContext?.Session.GetString(ConstantsValue.RefreshToken);
 
             if (!string.IsNullOrEmpty(accessToken) && !IsTokenExpired(accessToken))
             {
@@ -95,8 +96,8 @@ namespace Lab.Utility.Extensions
 
                 if (newTokenResponse != null)
                 {
-                    httpContextAccessor.HttpContext.Session.SetString(SD.AccessToken, newTokenResponse.AccessToken);
-                    httpContextAccessor.HttpContext.Session.SetString(SD.RefreshToken, newTokenResponse.RefreshToken);
+                    httpContextAccessor.HttpContext!.Session.SetString(ConstantsValue.AccessToken, newTokenResponse.AccessToken!);
+                    httpContextAccessor.HttpContext!.Session.SetString(ConstantsValue.RefreshToken, newTokenResponse.RefreshToken!);
                     return newTokenResponse.AccessToken;
                 }
             }

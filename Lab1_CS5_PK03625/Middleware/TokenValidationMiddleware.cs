@@ -34,7 +34,7 @@ namespace Lab.API.Middleware
                     // Giải mã token để lấy userId
                     var tokenValue = token.ToString().Replace("Bearer ", "");
 
-                    string? userId = (await jwtRepo.TakeDataTokenAsync(tokenValue)).FindFirstValue(ClaimTypes.NameIdentifier) ?? null;
+                    string? userId = (jwtRepo.TakeDataTokenAsync(tokenValue)).FindFirstValue(ClaimTypes.NameIdentifier) ?? null;
 
                     if (String.IsNullOrEmpty(userId))
                     {
@@ -46,7 +46,7 @@ namespace Lab.API.Middleware
                         };
                     }
                     // Kiểm tra token có bị hủy hay không
-                    if (await tokenService.IsTokenRevokedAsync(userId))
+                    if (await tokenService.IsTokenRevokedAsync(userId!))
                     {
                         context.Response.StatusCode = 401; // Unauthorized
                         context.Response.ContentType = "application/json"; // Đặt kiểu nội dung là JSON
