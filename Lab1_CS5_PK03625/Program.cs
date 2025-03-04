@@ -14,6 +14,7 @@ using Lab.Services.Redis.IServices;
 //using Lab.Services.VnPay;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -183,7 +184,11 @@ namespace Lab.API
             app.UseRouting();
             app.UseHttpsRedirection();
 
-            app.UseCors("MyPolicy");
+            app.UseCors(options => {
+                options.AllowAnyHeader();
+                options.AllowAnyMethod();
+                options.AllowAnyOrigin();
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();

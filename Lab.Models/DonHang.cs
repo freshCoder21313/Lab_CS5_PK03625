@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace Lab.Models
         public int MaDonHang { get; set; }
         public string? NguoiDungId { get; set; }
         public DateTime NgayDatHang { get; set; }
+        [Column(TypeName = "decimal(18, 4)")]
         public decimal TongTienDonHang { get; set; }
         public string? TrangThaiThanhToan { get; set; } = string.Empty;
         public string? TenNguoiNhan { get; set; } = string.Empty;

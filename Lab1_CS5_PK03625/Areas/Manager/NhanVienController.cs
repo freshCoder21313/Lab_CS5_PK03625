@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Lab.API.Areas.Manager
@@ -15,7 +16,7 @@ namespace Lab.API.Areas.Manager
     [Area("Manager")]
     [Route("api/[area]/[controller]/[action]")]
     [ApiController]
-    [Authorize(Roles = ConstantsValue.RoleAdmin)]
+    // [Authorize(Roles = ConstantsValue.RoleAdmin)]
     public class NhanVienController : ControllerBase
     {
         private readonly AppSetting _appSetting;
@@ -32,6 +33,7 @@ namespace Lab.API.Areas.Manager
         /// </summary>
         /// <returns>Lấy toàn bộ dữ liệu</returns>
         [HttpGet]
+        [ProducesResponseType(typeof(ResponseAPI<List<NguoiDungUngDung>>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
             var NguoiDungs = await _unit.NguoiDungs.GetAllAsync();

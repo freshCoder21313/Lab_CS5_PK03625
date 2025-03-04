@@ -24,13 +24,19 @@ namespace Lab.API.Areas.Manager
     public class SanPhamController : ControllerBase
     {
         private readonly IUnitOfWork _unit;
-        private readonly IRedisCacheService cache;
 
-        public SanPhamController(IUnitOfWork unit, IRedisCacheService cache)
+        public SanPhamController(IUnitOfWork unit)
         {
             _unit = unit;
-            this.cache = cache;
         }
+        // private readonly IUnitOfWork _unit;
+        // private readonly IRedisCacheService cache;
+
+        // public SanPhamController(IUnitOfWork unit, IRedisCacheService cache)
+        // {
+        //     _unit = unit;
+        //     this.cache = cache;
+        // }
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -43,20 +49,24 @@ namespace Lab.API.Areas.Manager
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public async Task<IActionResult> GetAll()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0";
 
-            var cachingKey = $"products_{userId}";
-
-            var responseSpVMs = cache.GetData<IEnumerable<tblSanPham>>(cachingKey);
-            if (responseSpVMs is not null)
-            {
-                return Ok(responseSpVMs);
-            }
-
-            responseSpVMs = await _unit.SanPhams.GetAllAsync();
-
-            cache.SetData(cachingKey, responseSpVMs);
+            var responseSpVMs = await _unit.SanPhams.GetAllAsync();
             return Ok(responseSpVMs);
+
+            // var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0";
+
+            // var cachingKey = $"products_{userId}";
+
+            // var responseSpVMs = cache.GetData<IEnumerable<tblSanPham>>(cachingKey);
+            // if (responseSpVMs is not null)
+            // {
+            //     return Ok(responseSpVMs);
+            // }
+
+            // responseSpVMs = await _unit.SanPhams.GetAllAsync();
+
+            // cache.SetData(cachingKey, responseSpVMs);
+            // return Ok(responseSpVMs);
         }
         [Authorize]
         [HttpPost]
