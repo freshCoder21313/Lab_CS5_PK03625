@@ -41,7 +41,7 @@ namespace Lab.Models
         public const string InvalidUsernameMessage = "Tên người dùng không hợp lệ. Vui lòng nhập từ 3 đến 20 ký tự chữ hoặc số.";
 
 
-        public static ValidationResult ValidateBirthDate(DateTime date, ValidationContext context)
+        public static ValidationResult? ValidateBirthDate(DateTime date, ValidationContext context)
         {
             if (date > DateTime.Now)
             {

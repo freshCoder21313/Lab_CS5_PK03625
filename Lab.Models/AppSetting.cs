@@ -8,6 +8,6 @@ namespace Lab.Models
 {
     public class AppSetting
     {
-        public string SecretKey { get; set; }
+        public string? SecretKey { get; set; } = string.Empty;
     }
 }

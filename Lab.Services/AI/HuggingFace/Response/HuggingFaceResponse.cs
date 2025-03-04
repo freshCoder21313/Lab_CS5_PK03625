@@ -10,6 +10,6 @@ namespace Lab.Services.AI.HuggingFace.Response
     public class HuggingFaceResponse
     {
         [JsonPropertyName("generated_text")]
-        public string GeneratedText { get; set; }
+        public string? GeneratedText { get; set; } = "Không có yêu cầu";
     }
 }

@@ -15,7 +15,7 @@ public class HuggingFaceService
     public HuggingFaceService(HttpClient httpClient, IConfiguration configuration)
     {
         _httpClient = httpClient;
-        _apiKey = configuration["HuggingFace:ApiKey"];
+        _apiKey = configuration["HuggingFace:ApiKey"]!;
     }
     public async Task<string> GenerateTextAsync(string model, string input)
     {

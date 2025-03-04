@@ -64,7 +64,7 @@ namespace Lab.DataAccess.DbInitializer
                 }, "Admin123*@").GetAwaiter().GetResult();
 
                 var user = _db.NguoiDungUngDungs.FirstOrDefault(u => u.Email == "admin@dotnetmastery.com");
-                _userManager.AddToRoleAsync(user, ConstantsValue.RoleAdmin).GetAwaiter().GetResult();
+                _userManager.AddToRoleAsync(user!, ConstantsValue.RoleAdmin).GetAwaiter().GetResult();
 
 
                 //SeedUsers();
@@ -94,7 +94,7 @@ namespace Lab.DataAccess.DbInitializer
                 }, "Admin123*@").GetAwaiter().GetResult();
 
                 var user = _db.NguoiDungUngDungs.FirstOrDefault(u => u.Email == "email@gmail.com");
-                _userManager.AddToRoleAsync(user, ConstantsValue.RoleCustomer).GetAwaiter().GetResult();
+                _userManager.AddToRoleAsync(user!, ConstantsValue.RoleCustomer).GetAwaiter().GetResult();
 
                 _db.SaveChanges();
             }

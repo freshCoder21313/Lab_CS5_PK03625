@@ -60,7 +60,7 @@ namespace Lab.API.Controllers
             if (userLogin != null)
             {
                 TokenVM tokenVM = _jwt.GenerateToken(userLogin);
-                await _tokenService.StoreTokenAsync(userLogin.Id.ToString(), tokenVM.AccessToken, TimeSpan.FromMinutes(15)); //Note: Key
+                await _tokenService.StoreTokenAsync(userLogin.Id.ToString(), tokenVM.AccessToken!, TimeSpan.FromMinutes(15)); //Note: Key
 
                 return Ok(new
                 {

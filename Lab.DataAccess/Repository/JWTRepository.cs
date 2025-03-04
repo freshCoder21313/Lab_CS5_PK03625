@@ -2,6 +2,7 @@
 using Lab.DataAccess.Repository.IRepository;
 using Lab.Models;
 using Lab.Models.ViewModels;
+using Lab.Utility.SharedData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
@@ -31,7 +32,7 @@ namespace Lab.DataAccess.Repository
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
 
-            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey);
+            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey!);
 
             var tokenDescription = new SecurityTokenDescriptor
             {
@@ -40,7 +41,7 @@ namespace Lab.DataAccess.Repository
                     new Claim(ClaimTypes.Email, nguoiDung.Email ?? ""),
                     new Claim(ClaimTypes.NameIdentifier, nguoiDung.Id.ToString()),
                     new Claim(ClaimTypes.Name, nguoiDung.HoTen ?? "No Name"),
-                    new Claim(ClaimTypes.Role, nguoiDung.VaiTro),
+                    new Claim(ClaimTypes.Role, nguoiDung.VaiTro ?? ConstantsValue.RoleCustomer),
                     new Claim(ClaimTypes.Version, "1"),
                     //new(JwtRegisteredClaimNames.Aud, _configuration.GetSection("JWTSetting").GetSection("ValidAudience").Value!),
                     //new(JwtRegisteredClaimNames.Iss, _configuration.GetSection("JWTSetting").GetSection("ValidIssuer").Value!)
@@ -62,7 +63,7 @@ namespace Lab.DataAccess.Repository
         public ClaimsPrincipal TakeDataTokenAsync(string token)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
-            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey);
+            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey!);
 
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -89,7 +90,7 @@ namespace Lab.DataAccess.Repository
             }
 
             var jwtTokenHandler = new JwtSecurityTokenHandler();
-            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey);
+            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey!);
 
             var tokenDescription = new SecurityTokenDescriptor
             {
@@ -128,7 +129,7 @@ namespace Lab.DataAccess.Repository
         public ClaimsPrincipal ValidateRefreshToken(string refreshToken)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
-            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey);
+            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey!);
 
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -164,7 +165,7 @@ namespace Lab.DataAccess.Repository
 
             // Generate a new token with the updated version claim
             var newToken = GenerateToken(nguoiDung);
-            newToken.AccessToken = newToken.AccessToken.Replace(currentVersion, newVersion); // This is not a valid way to update JWT, just illustrative.
+            newToken.AccessToken = newToken.AccessToken!.Replace(currentVersion, newVersion); // This is not a valid way to update JWT, just illustrative.
 
             return newToken;
         }

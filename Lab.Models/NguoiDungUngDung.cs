@@ -20,7 +20,7 @@ namespace Lab.Models
         [Display(Name = "Địa Chỉ")]
         [RegularExpression(ValidationConstants.ValidateString, ErrorMessage = "Địa chỉ chỉ được chứa chữ cái, số và khoảng trắng.")]
         [Required(ErrorMessage = "Vui lòng nhập thông tin địa chỉ người dùng.")]
-        public string DiaChi { get; set; }
+        public string? DiaChi { get; set; } = string.Empty;
 
         [StringLength(255, ErrorMessage = "Link ảnh không được vượt quá 255 ký tự.")]
         [ValidateNever]
