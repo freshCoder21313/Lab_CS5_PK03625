@@ -13,6 +13,7 @@ namespace Lab.DataAccess.Repository.IRepository
     public interface INguoiDungUngDungRepository : IRepository<NguoiDungUngDung>
     {
         Task<ResponseAPI<dynamic>> AddAsyncByDTO(NhanVienDTO objDTO);
+        Task<ResponseAPI<dynamic>> DangKyAsync(DangKy dangKyDTO);
         Task Update(NhanVienDTO objDTO);
         Task<ResponseAPI<TokenVM>> RegisterAsync(RegisterDto request);
         Task<ResponseAPI<TokenVM>> LoginAsync(LoginDto login);

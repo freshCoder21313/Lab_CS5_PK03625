@@ -68,7 +68,7 @@ namespace Lab.API.Areas.Manager
             // cache.SetData(cachingKey, responseSpVMs);
             // return Ok(responseSpVMs);
         }
-        [Authorize]
+        // [Authorize]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] SanPhamDTO sanPhamDTO)
         {
@@ -98,7 +98,7 @@ namespace Lab.API.Areas.Manager
         /// </summary>
         /// <param name="sanPhamDTO">Dữ liệu san phẩm cập nhập.</param>
 
-        [Authorize]
+        // [Authorize]
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] SanPhamDTO sanPhamDTO)
         {
@@ -128,7 +128,7 @@ namespace Lab.API.Areas.Manager
         /// <param name="id">ID của sẩn phẩm.</param>
         /// <returns>Xóa dữ liệu dữ liệu 1 đối tượng theo id</returns>
 
-        [Authorize]
+        // [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -145,7 +145,7 @@ namespace Lab.API.Areas.Manager
         {
             ResponseAPI<List<SanPhamVM>> responseSp = await _unit.SanPhams.GetAllAsyncVM();
 
-            responseSp.Data = responseSp.Data.OrderBy(x => x.TenSanPham).ToList();
+            responseSp.Data = responseSp?.Data?.OrderBy(x => x.TenSanPham).ToList();
 
             return Ok(responseSp);
         }

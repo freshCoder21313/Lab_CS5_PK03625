@@ -5,6 +5,7 @@ using Lab.Services.Redis;
 using Lab.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
@@ -46,33 +47,76 @@ namespace Lab.API.Controllers
         [HttpPost]
         public async Task<IActionResult> DangNhap([FromBody] DangNhap dangNhap)
         {
-            if (dangNhap is null || string.IsNullOrWhiteSpace(dangNhap.UserName) || string.IsNullOrWhiteSpace(dangNhap.Password))
+            if (dangNhap == null || string.IsNullOrWhiteSpace(dangNhap.UserName) || string.IsNullOrWhiteSpace(dangNhap.Password))
+            {
+                return BadRequest(new { success = false, message = "Thông tin truy cập không hợp lệ." });
+            }
+
+            var userLogin = await _unit.NguoiDungs.GetAsync(x => x.UserName == dangNhap.UserName);
+            if (userLogin == null)
+            {
+                return Unauthorized(new { success = false, message = "Tên đăng nhập hoặc mật khẩu không chính xác." });
+            }
+
+            var passwordHasher = new PasswordHasher<NguoiDungUngDung>();
+            var passwordVerificationResult = passwordHasher.VerifyHashedPassword(userLogin, userLogin.PasswordHash!, dangNhap.Password);
+            if (passwordVerificationResult == PasswordVerificationResult.Failed)
+            {
+                return Unauthorized(new { success = false, message = "Tên đăng nhập hoặc mật khẩu không chính xác." });
+            }
+
+            TokenVM tokenVM = _jwt.GenerateToken(userLogin);
+            await _tokenService.StoreTokenAsync(userLogin.Id.ToString(), tokenVM.AccessToken!, TimeSpan.FromMinutes(15));
+
+            return Ok(new { success = true, token = tokenVM });
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// {
+        ///   "userName": "supernam",
+        ///   "password": "123QWEqwe@",
+        ///   "email": "supername@gmail.com",
+        ///   "gioiTinh": true,
+        ///   "hoTen": "Văn Nhân",
+        ///   "soDienThoai": "0999934999",
+        ///   "diaChi": "string",
+        ///   "ngaySinh": "2025-03-05T15:35:30.840Z"
+        /// }
+        /// </remarks>
+        /// <param name="dangKyDTO"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> DangKy([FromBody] DangKy dangKyDTO)
+        {
+            if (dangKyDTO == null || string.IsNullOrWhiteSpace(dangKyDTO.UserName) ||
+                string.IsNullOrWhiteSpace(dangKyDTO.Email) || string.IsNullOrWhiteSpace(dangKyDTO.Password))
             {
                 return BadRequest(new
                 {
                     success = false,
-                    message = "Thông tin truy cập không hợp lệ, vui lòng điền thông tin truy cập phù hợp."
+                    message = "Thông tin đăng ký không hợp lệ, vui lòng kiểm tra lại."
                 });
             }
 
-            var userLogin = await _unit.NguoiDungs.GetAsync(x => x.UserName == dangNhap.UserName);
+            var response = await _unit.NguoiDungs.DangKyAsync(dangKyDTO);
 
-            if (userLogin != null)
+            if (!response.Success!.Value)
             {
-                TokenVM tokenVM = _jwt.GenerateToken(userLogin);
-                await _tokenService.StoreTokenAsync(userLogin.Id.ToString(), tokenVM.AccessToken!, TimeSpan.FromMinutes(15)); //Note: Key
-
-                return Ok(new
+                return StatusCode(response.Status!.Value, new
                 {
-                    success = true,
-                    message = tokenVM
+                    success = false,
+                    message = response.Message,
+                    errors = response.Data
                 });
             }
 
-            return Unauthorized(new
+            return Ok(new
             {
-                success = false,
-                message = "Mã xác thực không hợp lệ, quyền truy cập bị cấm."
+                success = true,
+                message = response.Message,
+                userId = response.Data
             });
         }
 
@@ -87,30 +131,17 @@ namespace Lab.API.Controllers
         {
             if (string.IsNullOrWhiteSpace(token))
             {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Vui lòng nhập mã token."
-                });
+                return BadRequest(new { success = false, message = "Vui lòng nhập mã token." });
             }
 
             try
             {
                 var principal = _jwt.TakeDataTokenAsync(token);
-                return Ok(new
-                {
-                    success = true,
-                    claims = principal.Claims.Select(c => new { c.Type, c.Value })
-                });
+                return Ok(new { success = true, claims = principal.Claims.Select(c => new { c.Type, c.Value }) });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new
-                {
-                    success = false,
-                    message = "Lỗi không mong muốn xảy ra. Mã Token của bạn có thể đã hết hạn hoặc không hợp lệ.",
-                    error = ex.Message
-                });
+                return Unauthorized(new { success = false, message = "Token không hợp lệ hoặc đã hết hạn." });
             }
         }
 
@@ -122,56 +153,34 @@ namespace Lab.API.Controllers
         {
             if (string.IsNullOrWhiteSpace(refreshToken))
             {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Vui lòng nhập mã refresh token."
-                });
+                return BadRequest(new { success = false, message = "Vui lòng nhập mã refresh token." });
             }
 
             try
             {
                 var principal = _jwt.ValidateRefreshToken(refreshToken);
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-                // Kiểm tra xem refresh token có hợp lệ không và lấy thông tin người dùng
                 var user = await _unit.NguoiDungs.GetAsync(u => u.Id.ToString() == userId);
                 if (user == null)
                 {
-                    return Unauthorized(new
-                    {
-                        success = false,
-                        message = "Refresh token không hợp lệ."
-                    });
+                    return Unauthorized(new { success = false, message = "Refresh token không hợp lệ." });
                 }
 
-                // Tạo mới access token và refresh token
                 TokenVM newTokenVM = _jwt.GenerateToken(user);
-
-                return Ok(new
-                {
-                    success = true,
-                    message = newTokenVM
-                });
+                return Ok(new { success = true, token = newTokenVM });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new
-                {
-                    success = false,
-                    message = "Lỗi không mong muốn xảy ra khi làm mới token.",
-                    error = ex.Message
-                });
+                return Unauthorized(new { success = false, message = "Không thể làm mới token." });
             }
         }
         [HttpPost]
-        public async Task<IActionResult> Logout(string accessToken)
+        public async Task<IActionResult> Logout()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (userId != null)
+            if (!string.IsNullOrEmpty(userId))
             {
-                await _tokenService.RevokeTokenAsync(userId); // Xóa token khỏi Redis
+                await _tokenService.RevokeTokenAsync(userId);
                 return Ok(new { success = true, message = "Đăng xuất thành công." });
             }
 
