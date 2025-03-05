@@ -1,10 +1,46 @@
 <template>
-  <nav class="container-fluid">
-    <div class="container gap-4">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+  <nav class="container-fluid bg-light py-2 border-bottom">
+    <div class="container">
+      <div class="row justify-content-between align-items-center">
+        <!-- Các link chính -->
+        <div class="col-auto">
+          <router-link class="text-decoration-none text-dark mx-2" to="/"
+            >Home</router-link
+          >
+          <span>|</span>
+          <router-link class="text-decoration-none text-dark mx-2" to="/about"
+            >About</router-link
+          >
+          <span>|</span>
+
+          <!-- Dropdown Manager -->
+          <div class="btn-group">
+            <button
+              type="button"
+              class="btn btn-link text-dark dropdown-toggle text-decoration-none"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Manager
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <router-link class="dropdown-item" to="/manager/user"
+                  >Manager User</router-link
+                >
+              </li>
+              <li>
+                <router-link class="dropdown-item" to="/manager/product"
+                  >Manager Product</router-link
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   </nav>
+
   <router-view class="container justify-content-center" />
 </template>
 

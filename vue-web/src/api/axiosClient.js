@@ -1,10 +1,10 @@
 import axios from "axios";
-import jwtDecode from "jwt-decode"; // Cần cài đặt thư viện này: npm install jwt-decode
+import { jwtDecode } from "jwt-decode"; // Thư viện cần: npm install jwt-decode
 import ResponseAPI from "@/models/ResponseAPI";
 
 // Base Axios Client
 const axiosClient = axios.create({
-  baseURL: "https://localhost:7094/api", // Thay bằng base URL của API bạn
+  baseURL: "http://localhost:5273/api", // Thay bằng base URL của API bạn
   timeout: 10000, // Giới hạn timeout (ms)
   headers: {
     "Content-Type": "application/json",
@@ -17,7 +17,7 @@ function isTokenExpired(token) {
     const decoded = jwtDecode(token);
     return decoded.exp * 1000 < Date.now(); // Thời gian hết hạn (exp) là milli-seconds
   } catch {
-    return true;
+    return true; // Nếu không decode được token, xem như nó đã hết hạn
   }
 }
 
@@ -30,9 +30,12 @@ async function refreshAccessToken() {
   }
 
   try {
-    const response = await axios.post("https://localhost:7094/api/TruyCap/RefreshToken", {
-      RefreshToken: refreshToken,
-    });
+    const response = await axios.post(
+      axiosClient.baseURL + "/TruyCap/RefreshToken",
+      {
+        RefreshToken: refreshToken,
+      }
+    );
 
     if (response.status === 200 && response.data) {
       const { accessToken, refreshToken: newRefreshToken } = response.data;
@@ -52,14 +55,25 @@ async function refreshAccessToken() {
 // Middleware (interceptors) thêm Authorization header
 axiosClient.interceptors.request.use(
   async (config) => {
+    // Kiểm tra xem request này có cần Authorization hay không
+    const requiresAuth = !config.headers.skipAuth; // Mặc định là true nếu skipAuth không tồn tại
+    if (!requiresAuth) {
+      return config; // Nếu không cần Authorization, trả về config gốc
+    }
+
     const accessToken = localStorage.getItem("accessToken");
 
     // Nếu cần Authorization và có accessToken
     if (accessToken) {
       if (isTokenExpired(accessToken)) {
         // Nếu token hết hạn, refresh token
-        const newToken = await refreshAccessToken();
-        config.headers.Authorization = `Bearer ${newToken}`;
+        try {
+          const newToken = await refreshAccessToken();
+          config.headers.Authorization = `Bearer ${newToken}`;
+        } catch (error) {
+          console.error("Lỗi khi refresh token:", error.message);
+          throw error;
+        }
       } else {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
@@ -68,7 +82,7 @@ axiosClient.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    return Promise.reject(error); // Xử lý lỗi nếu request bị gián đoạn
   }
 );
 
@@ -90,7 +104,7 @@ axiosClient.interceptors.response.use(
 const handleResponse = async (callback) => {
   try {
     const result = await callback();
-    return new ResponseAPI(200, true, "Thành công", result);
+    return new ResponseAPI(result);
   } catch (error) {
     const status = error.response?.status || 500;
     const message = error.response?.data?.message || "Lỗi không xác định";
@@ -99,28 +113,28 @@ const handleResponse = async (callback) => {
 };
 
 // Hàm GET
-async function getFromApi(url) {
-  return handleResponse(() => axiosClient.get(url));
+async function getFromApi(url, config = { headers: { skipAuth: true } }) {
+  return handleResponse(() => axiosClient.get(url, config));
 }
 
 // Hàm POST
-async function postToApi(url, data) {
-  return handleResponse(() => axiosClient.post(url, data));
+async function postToApi(url, data, config = { headers: { skipAuth: true } }) {
+  return handleResponse(() => axiosClient.post(url, data, config));
 }
 
 // Hàm PUT
-async function putToApi(url, data) {
-  return handleResponse(() => axiosClient.put(url, data));
+async function putToApi(url, data, config = { headers: { skipAuth: true } }) {
+  return handleResponse(() => axiosClient.put(url, data, config));
 }
 
 // Hàm PATCH
-async function patchToApi(url, data) {
-  return handleResponse(() => axiosClient.patch(url, data));
+async function patchToApi(url, data, config = { headers: { skipAuth: true } }) {
+  return handleResponse(() => axiosClient.patch(url, data, config));
 }
 
 // Hàm DELETE
-async function deleteFromApi(url) {
-  return handleResponse(() => axiosClient.delete(url));
+async function deleteFromApi(url, config = { headers: { skipAuth: true } }) {
+  return handleResponse(() => axiosClient.delete(url, config));
 }
 
 export { getFromApi, postToApi, putToApi, patchToApi, deleteFromApi };

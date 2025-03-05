@@ -1,3 +1,5 @@
+import $ from "jquery";
+
 export function attachDetailsControl(tableSelector, format) {
   $(tableSelector + " tbody").on("click", "td.details-control", function () {
     var tr = $(this).closest("tr");

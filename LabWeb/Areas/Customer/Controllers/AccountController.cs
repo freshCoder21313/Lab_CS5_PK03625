@@ -42,14 +42,14 @@ namespace LabWeb.Areas.Customer.Controllers
 
                 if (success)
                 {
-                    var accessToken = jsonObject["message"]?["accessToken"]?.ToString();
-                    var refreshToken = jsonObject["message"]?["refreshToken"]?.ToString();
+                    var accessToken = jsonObject["data"]?["accessToken"]?.ToString();
+                    var refreshToken = jsonObject["data"]?["refreshToken"]?.ToString();
 
                     if (!string.IsNullOrEmpty(accessToken))
                     {
                         // Lưu token vào session
                         HttpContext.Session.SetString(ConstantsValue.AccessToken, accessToken);
-                        HttpContext.Session.SetString(ConstantsValue.RefreshToken, refreshToken);
+                        HttpContext.Session.SetString(ConstantsValue.RefreshToken, refreshToken!);
 
                         return RedirectToAction("Index", "Lab1", new {area = "Manager"});
                     }
