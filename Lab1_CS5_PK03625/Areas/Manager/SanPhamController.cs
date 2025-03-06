@@ -113,7 +113,7 @@ namespace Lab.API.Areas.Manager
                 return Ok(new ResponseAPI<dynamic>
                 {
                     Success = true,
-                    Message = $"Đã thay đổi dữ liệu nhân viên mang mã: {sanPhamDTO.MaSanPham}"
+                    Message = $"Đã thay đổi dữ liệu sản phẩm mang mã: {sanPhamDTO.MaSanPham}"
                 });
             }
             catch (Exception ex)

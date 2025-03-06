@@ -37,12 +37,43 @@
             </ul>
           </div>
         </div>
+        <div class="col-auto">
+          <b-button v-if="isLoggedIn" @click="handleLogout">Đăng xuất</b-button>
+          <b-button v-else @click="openAuthModal">Đăng nhập</b-button>
+        </div>
       </div>
     </div>
   </nav>
 
   <router-view class="container justify-content-center" />
+
+  <AuthModal ref="authModal" />
 </template>
+
+<script>
+import AuthModal from "@/components/AuthModal.vue";
+import { isAccess, logout } from "@/services/access";
+
+export default {
+  components: {
+    AuthModal,
+  },
+  data() {
+    return {
+      isLoggedIn: isAccess(),
+    };
+  },
+  methods: {
+    openAuthModal() {
+      this.$refs.authModal.showModal = true;
+    },
+    async handleLogout() {
+      await logout();
+      this.isLoggedIn = false;
+    },
+  },
+};
+</script>
 
 <!-- 
 <div class="container">

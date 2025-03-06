@@ -32,3 +32,21 @@ export const warningNotification = (message) => {
     showConfirmButton: false,
   });
 };
+
+export const confirmAction = (message, onConfirm, onCancel) => {
+  Swal.fire({
+    title: "Xác nhận",
+    text: message,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Đồng ý",
+    cancelButtonText: "Hủy",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      onConfirm && onConfirm();
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      onCancel && onCancel();
+    }
+  });
+};
+  

@@ -3,27 +3,12 @@
     <h1 class="title has-text-centered">Danh sách sản phẩm</h1>
     <b-button
       variant="success"
-      v-b-modal.productModal
       class="btn btn-success"
       @click="toggleForm(null)"
     >
       <i class="material-icons center">add</i> Thêm
     </b-button>
-    <div>
-      <b-button v-b-modal.modal-no-backdrop>Open modal</b-button>
 
-      <b-modal
-        id="modal-no-backdrop"
-        hide-backdrop
-        content-class="shadow"
-        title="BootstrapVue"
-      >
-        <p class="my-2">
-          We've added the utility class <code>'shadow'</code>
-          to the modal content for added effect.
-        </p>
-      </b-modal>
-    </div>
     <div class="row justify-content-between mt-4">
       <div class="col-6">
         <label for="" class="label-form">Nhập giá lọc nhỏ nhất:</label>
@@ -51,13 +36,7 @@
     <table m-table class="table is-striped is-hoverable" id="dt-mP"></table>
 
     <!-- Modal Form -->
-    <b-modal
-      id="productModal"
-      hide-backdrop
-      size="lg"
-      title="Quản lý sản phẩm"
-      :hide-footer="true"
-    >
+    <b-modal v-model="showForm" size="lg" title="Quản lý sản phẩm" hide-footer>
       <template #modal-title>
         <h5>{{ isEditing ? "Sửa sản phẩm" : "Thêm sản phẩm" }}</h5>
       </template>
@@ -69,7 +48,7 @@
             v-model="formData.maSanPham"
             id="maSanPham"
             placeholder="Nhập mã sản phẩm"
-            :disabled="isEditing"
+            disabled
           />
         </div>
         <div class="mb-3">
@@ -100,7 +79,7 @@
         </div>
 
         <div class="modal-footer text-right">
-          <b-button variant="secondary" @click="toggleForm(null)">Hủy</b-button>
+          <b-button variant="secondary" @click="showForm = false">Hủy</b-button>
           <b-button variant="primary" type="submit">Lưu</b-button>
         </div>
       </form>
@@ -111,6 +90,7 @@
 <script>
 import * as configsDt from "@/constants/configsDatatable.js";
 import * as axiosClient from "@/api/axiosClient";
+import * as SwalPlugins from "@/plugins/notification";
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt";
@@ -120,18 +100,19 @@ export default {
   name: "ManagerProduct",
   data() {
     return {
-      tableData: [], // Dữ liệu bảng
-      giaNhoNhat: 1, // Giá nhỏ nhất
-      giaLonNhat: 9999999, // Giá lớn nhất
-      showForm: false, // Kiểm soát hiển thị modal
-      isEditing: false, // Có phải đang sửa không?
-      formData: new SanPhamDto(), // Dữ liệu trong form
+      tableData: [],
+      giaNhoNhat: 1,
+      giaLonNhat: 9999999,
+      isEditing: false,
+      formData: new SanPhamDto(),
+      showForm: false,
     };
   },
   mounted() {
     this.loadData();
   },
   methods: {
+    // Tải dữ liệu datatable
     loadData() {
       axiosClient
         .getFromApi(
@@ -203,6 +184,7 @@ export default {
 
       this.attachEventHandlers();
     },
+    // Gắn sự kiện delete/edit
     attachEventHandlers() {
       const self = this;
       $("#dt-mP").on("click", ".btn-delete", function () {
@@ -215,8 +197,8 @@ export default {
         self.loadViewUpsertProduct(maSanPham);
       });
     },
+    // Load view insert
     toggleForm(product) {
-      this.showForm = !this.showForm;
       if (product) {
         this.isEditing = true;
         this.formData = { ...product };
@@ -224,9 +206,13 @@ export default {
         this.isEditing = false;
         this.formData = new SanPhamDto();
       }
+      this.showForm = true;
+    },
+    closeModal() {
+      this.showForm = false;
     },
     resetForm() {
-      this.formData = new SanPhamDto(); // Reset dữ liệu khi modal ẩn
+      this.formData = new SanPhamDto();
       this.isEditing = false;
     },
     submitForm() {
@@ -237,11 +223,9 @@ export default {
       apiCall
         .then((response) => {
           if (response.success) {
-            alert(
-              this.isEditing ? "Cập nhật thành công!" : "Thêm mới thành công!"
-            );
+            this.$toast.success(response.message);
             this.loadData();
-            this.toggleForm(null);
+            this.closeModal();
           }
         })
         .catch((error) => {
@@ -249,19 +233,22 @@ export default {
         });
     },
     deleteProductRecord(maSanPham) {
-      if (confirm(`Bạn có chắc muốn xóa sản phẩm ID: ${maSanPham}?`)) {
-        axiosClient
-          .deleteFromApi(`/Manager/SanPham/delete/${maSanPham}`)
-          .then((response) => {
-            if (response.success) {
-              alert("Xóa sản phẩm thành công!");
-              this.loadData();
-            }
-          })
-          .catch((error) => {
-            console.error("Lỗi xóa sản phẩm:", error);
-          });
-      }
+      SwalPlugins.confirmAction(
+        `Bạn có chắc muốn xóa sản phẩm ID: ${maSanPham}?`,
+        () => {
+          axiosClient
+            .deleteFromApi(`/Manager/SanPham/delete/${maSanPham}`)
+            .then((response) => {
+              if (response.success) {
+                this.$toast.success(response.message);
+                this.loadData();
+              }
+            })
+            .catch((error) => {
+              console.error("Lỗi xóa sản phẩm:", error);
+            });
+        }
+      );
     },
     loadViewUpsertProduct(maSanPham) {
       const product = this.tableData.find(

@@ -1,0 +1,14 @@
+<script setup>
+  defineProps({});
+</script>
+
+<template>
+  <div class="{{kebabCase name}}">
+    <h1>{{pascalCase name}} Component</h1>
+  </div>
+</template>
+
+<style scoped>
+  .{{kebabCase name}}
+  { padding: 10px; border: 1px solid #ccc; }
+</style>

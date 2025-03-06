@@ -1,22 +1,21 @@
 import { createApp } from "vue"; // Đúng cách cho Vue 3
-import BootstrapVueNext from "bootstrap-vue-next";
+
+import BootstrapVue3 from "bootstrap-vue-3";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue-3/dist/bootstrap-vue-3.css";
-
-// Import Materialize CSS và JavaScript
-import "materialize-css/dist/css/materialize.min.css";
-import "materialize-css/dist/js/materialize.min.js";
 
 import App from "./App.vue"; // App chính của bạn
 import router from "./router"; // Router của Vue Router
 import store from "./store"; // Store của Vuex hoặc Pinia (tùy theo bạn dùng cái gì)
+import toastr from "./plugins/toastr";
 
 const app = createApp(App);
 
 // Sử dụng các plugin trong Vue 3
 app.use(store); // Tích hợp store quản lý trạng thái
 app.use(router); // Router dùng để điều hướng
-app.use(BootstrapVueNext);
+app.use(BootstrapVue3);
+app.use(toastr);
 
 // Mount app
 app.mount("#app");
