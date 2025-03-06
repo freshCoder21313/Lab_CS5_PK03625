@@ -15,13 +15,10 @@ using System.Threading.Tasks;
 
 namespace Lab.DataAccess.Repository
 {
-    public class SanPhamRepository : Repository<tblSanPham>, ISanPhamRepository
+    public class SanPhamRepository(ApplicationDbContext db) : Repository<tblSanPham>(db), ISanPhamRepository
     {
-        private ApplicationDbContext _db;
-        public SanPhamRepository(ApplicationDbContext db) : base(db)
-        {
-            _db = db;
-        }
+        private readonly ApplicationDbContext _db = db;
+
         public async Task<ResponseAPI<SanPhamVM>> GetAsyncVM(Expression<Func<tblSanPham, bool>> filter, string? includeProperties = null, bool tracked = false)
         {
             ResponseAPI<SanPhamVM> responseSpVM = new ResponseAPI<SanPhamVM>();

@@ -11,6 +11,7 @@ namespace Lab.DataAccess.Repository.IRepository
         INguoiDungUngDungRepository NguoiDungs { get; }
         ISanPhamRepository SanPhams { get; }
         IPaymentRepository Payments { get; }
+        IRoleRepository Roles {get; }
         //Task SaveAsync();
     }
 }

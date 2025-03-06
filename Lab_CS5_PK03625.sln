@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35617.110
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab.API", "Lab1_CS5_PK03625\Lab.API.csproj", "{B0427E2A-4BF3-49C7-8B97-4237873BDDA5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab.API", "Lab.API\Lab.API.csproj", "{B0427E2A-4BF3-49C7-8B97-4237873BDDA5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab.DataAccess", "Lab.DataAccess\Lab.DataAccess.csproj", "{29F91CFA-2A2A-4457-ACA0-7D6469CA9228}"
 EndProject

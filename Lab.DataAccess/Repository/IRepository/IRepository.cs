@@ -11,7 +11,7 @@ namespace Lab.DataAccess.Repository.IRepository
     {
         Task AddAsync(T entity);
         Task AddRangeAsync(IEnumerable<T> entities);
-        Task<T> GetAsync(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false);
+        Task<T?> GetAsync(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false);
         Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null);
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entities);
